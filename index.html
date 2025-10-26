@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>스마트RE - 공장·창고 전문 부동산</title>
+    <link rel="stylesheet" href="styles/base.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container">
+        <h1 class="logo">스마트RE</h1>
+        <nav class="nav">
+          <a href="#" data-scroll="#section-request">의뢰하기</a>
+          <a href="#" data-scroll="#section-about">회사소개</a>
+          <a href="#" data-scroll="#section-notice">공지사항</a>
+        </nav>
+        <form id="searchForm" class="search">
+          <input id="q" type="search" placeholder="주소, 용도, 키워드" />
+          <button type="submit">검색</button>
+        </form>
+      </div>
+    </header>
+
+    <main class="container">
+      <!-- 거래유형 탭 -->
+      <div class="tabs" id="dealTabs">
+        <button data-deal="전체" class="active">전체</button>
+        <button data-deal="분양">분양</button>
+        <button data-deal="매매">매매</button>
+        <button data-deal="전세">전세</button>
+        <button data-deal="월세">월세</button>
+      </div>
+
+      <!-- 필터 패널 -->
+      <section class="filters" id="filters">
+        <select id="region">
+          <option value="">지역(전체)</option>
+          <option>인천 남동구</option>
+          <option>시흥시</option>
+          <option>김포시</option>
+        </select>
+        <select id="purpose">
+          <option value="">용도(전체)</option>
+          <option>공장</option>
+          <option>창고</option>
+          <option>사무</option>
+        </select>
+        <input id="minSize" type="number" placeholder="최소평수" />
+        <input id="maxSize" type="number" placeholder="최대평수" />
+        <input id="minPrice" type="number" placeholder="최소가(만원)" />
+        <input id="maxPrice" type="number" placeholder="최대가(만원)" />
+        <button id="applyFilters">필터 적용</button>
+        <button id="resetFilters" class="ghost">초기화</button>
+      </section>
+
+      <!-- 결과 요약 -->
+      <div id="summary" class="summary"></div>
+
+      <!-- 매물 그리드 -->
+      <section id="grid" class="grid"></section>
+
+      <!-- 페이지네이션 -->
+      <div id="pagination" class="pagination"></div>
+
+      <!-- 섹션: 의뢰/회사/공지(스크롤 이동용 더미) -->
+      <section id="section-request" class="section-space">
+        <h2>의뢰하기</h2>
+        <p>구하기 / 내놓기 문의는 아래 연락처로 부탁드립니다.</p>
+        <p>
+          <a class="cta" href="tel:+82320000000">전화하기</a> ·
+          <a class="cta" href="https://pf.kakao.com/_channelId" target="_blank"
+            >카카오톡 문의</a
+          >
+          · <a class="cta" href="mailto:info@example.com">이메일</a>
+        </p>
+      </section>
+
+      <section id="section-about" class="section-space">
+        <h2>회사소개</h2>
+        <p>신뢰를 바탕으로 한 공장·창고 전문 중개 서비스.</p>
+      </section>
+
+      <section id="section-notice" class="section-space">
+        <h2>공지사항</h2>
+        <ul>
+          <li>신규 매물 다수 업데이트(예시)</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <small>© 2025 스마트RE. All rights reserved.</small>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>

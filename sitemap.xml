@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>https://example.com/</loc></url>
+<url><loc>https://example.com/index.html</loc></url>
+<!-- 상세 페이지는 운영 중 빌드 스크립트로 생성하거나, 상위 100개만 우선 등록 -->
+</urlset>

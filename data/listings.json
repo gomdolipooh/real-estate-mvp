@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1001,
+    "title": "남동공단 단독공장 임대 — 호이스트 5t",
+    "dealType": "월세",
+    "deposit": 4700,
+    "rent": 470,
+    "price": null,
+    "sizePyeong": 149,
+    "floor": "1/1",
+    "purpose": "공장",
+    "region": "인천 남동구 고잔동",
+    "images": ["/assets/placeholder.jpg"],
+    "contact": {
+      "office": "스마트RE",
+      "phone": "0320000000",
+      "kakao": "mychannel"
+    }
+  },
+  {
+    "id": 1002,
+    "title": "신축 수준 전력충분 — 2.8톤",
+    "dealType": "월세",
+    "deposit": 6650,
+    "rent": 665,
+    "price": null,
+    "sizePyeong": 190,
+    "floor": "1/2",
+    "purpose": "공장",
+    "region": "인천 남동구 고잔동",
+    "images": ["/assets/placeholder.jpg"],
+    "contact": {
+      "office": "스마트RE",
+      "phone": "0320000000",
+      "kakao": "mychannel"
+    }
+  },
+  {
+    "id": 1003,
+    "title": "남동공단 전자공장 1층 임대",
+    "dealType": "월세",
+    "deposit": 3600,
+    "rent": 360,
+    "price": null,
+    "sizePyeong": 120,
+    "floor": "1/3",
+    "purpose": "창고",
+    "region": "인천 남동구 고잔동",
+    "images": ["/assets/placeholder.jpg"],
+    "contact": {
+      "office": "스마트RE",
+      "phone": "0320000000",
+      "kakao": "mychannel"
+    }
+  }
+]
