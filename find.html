@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>내공장 찾아주세요 — 스마트RE</title>
+    <meta name="description" content="공장·창고 매물 찾기 및 구매 의뢰" />
+    <link rel="stylesheet" href="/styles/base.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="logo" href="/">스마트RE</a>
+        <nav class="nav">
+          <a href="/index.html">전체매물</a>
+          <a href="/sell.html">팔아주세요</a>
+          <a href="/find.html" class="active">찾아주세요</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="find-page">
+        <h1>내공장 찾아주세요</h1>
+
+        <div class="info-box">
+          <ul>
+            <li>스마트RE의 모든 서비스는 100% 무료입니다.</li>
+            <li>온라인에 공개하지 못하는 매물이 훨씬 더 많습니다.</li>
+            <li>
+              접수하신 내용을 바탕으로 최적의 매물을 고객님께 안내해 드립니다.
+            </li>
+            <li>
+              온라인 및 오프라인 전 직원이 직접 찾아 소개하여 드리겠습니다.
+            </li>
+            <li>힘들게 찾아다니지 마세요. 맡기고 기다리시면 됩니다.</li>
+          </ul>
+        </div>
+
+        <form id="findForm" class="find-form">
+          <div class="form-section">
+            <h2>의뢰인 기본정보입력</h2>
+            <div class="form-group">
+              <label for="name">이름 또는 별명</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="이름 또는 별명을 입력해주세요"
+              />
+            </div>
+            <div class="form-group required">
+              <label for="phone">휴대폰 또는 전화번호</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="010-1234-5678"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h2>산업단지 선택</h2>
+            <div class="checkbox-group">
+              <label class="checkbox-item">
+                <input type="checkbox" name="complex" value="시화공단" />
+                <span class="checkmark"></span>
+                시화공단
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="complex" value="반월공단" />
+                <span class="checkmark"></span>
+                반월공단
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="complex" value="남동공단" />
+                <span class="checkmark"></span>
+                남동공단
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="complex" value="시화MTV" />
+                <span class="checkmark"></span>
+                시화MTV
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="complex" value="화성지역" />
+                <span class="checkmark"></span>
+                화성지역
+              </label>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h2>찾으시는 물건의 조건</h2>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="propertyType">물건종류선택</label>
+                <select id="propertyType" name="propertyType">
+                  <option value="">선택해주세요</option>
+                  <option value="공장">공장</option>
+                  <option value="창고">창고</option>
+                  <option value="사무">사무</option>
+                  <option value="기타">기타</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="dealType">거래종류선택</label>
+                <select id="dealType" name="dealType">
+                  <option value="">선택해주세요</option>
+                  <option value="매매">매매</option>
+                  <option value="전세">전세</option>
+                  <option value="월세">월세</option>
+                  <option value="분양">분양</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="desiredPyeong">원하시는 평</label>
+              <input
+                type="number"
+                id="desiredPyeong"
+                name="desiredPyeong"
+                placeholder="예: 100평"
+              />
+            </div>
+            <div class="form-group">
+              <label for="desiredPrice">희망거래가</label>
+              <select id="desiredPrice" name="desiredPrice">
+                <option value="">선택해주세요</option>
+                <option value="5000만원 이하">5000만원 이하</option>
+                <option value="5000만원 - 1억원">5000만원 - 1억원</option>
+                <option value="1억원 - 2억원">1억원 - 2억원</option>
+                <option value="2억원 - 3억원">2억원 - 3억원</option>
+                <option value="3억원 - 5억원">3억원 - 5억원</option>
+                <option value="5억원 이상">5억원 이상</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h2>전하실 말씀</h2>
+            <div class="textarea-group">
+              <div class="textarea-toolbar">
+                <select class="font-select">
+                  <option>글자체</option>
+                  <option>맑은고딕</option>
+                  <option>돋움</option>
+                  <option>굴림</option>
+                </select>
+                <select class="size-select">
+                  <option>글자크기</option>
+                  <option>12px</option>
+                  <option>14px</option>
+                  <option>16px</option>
+                  <option>18px</option>
+                </select>
+                <button type="button" class="size-btn">가</button>
+                <button type="button" class="size-btn">가</button>
+                <button type="button" class="image-btn">📷</button>
+                <button type="button" class="help-btn">?</button>
+              </div>
+              <textarea
+                id="message"
+                name="message"
+                placeholder="원하시는 매물의 상세 조건을 입력해주세요..."
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="submit-btn">온라인 접수하기</button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container"><small>© 2025 스마트RE</small></div>
+    </footer>
+
+    <script type="module" src="/src/find.js"></script>
+  </body>
+</html>
