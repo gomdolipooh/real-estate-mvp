@@ -11,7 +11,7 @@ async function load() {
     return;
   }
 
-  document.title = `${it.title} — 스마트RE`;
+  document.title = `${it.title} — 비전부동산`;
 
   qs("#detail").innerHTML = `
     <div class="gallery">

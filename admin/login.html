@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>관리자 로그인</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-50 text-slate-900">
+    <div class="min-h-screen flex items-center justify-center p-4">
+      <div class="w-full max-w-sm bg-white rounded-2xl shadow p-6">
+        <h1 class="text-xl font-bold mb-4">관리자 로그인</h1>
+        <label class="block text-sm mb-1" for="email">이메일</label>
+        <input
+          id="email"
+          type="email"
+          class="w-full border rounded-lg px-3 py-2 mb-3"
+          placeholder="you@email.com"
+        />
+        <label class="block text-sm mb-1" for="password">비밀번호</label>
+        <input
+          id="password"
+          type="password"
+          class="w-full border rounded-lg px-3 py-2 mb-4"
+          placeholder="••••••••"
+        />
+        <button
+          id="loginBtn"
+          class="w-full bg-slate-900 text-white rounded-lg py-2"
+        >
+          로그인
+        </button>
+        <p id="msg" class="text-sm text-red-600 mt-3"></p>
+      </div>
+    </div>
+
+    <!-- Firebase SDK (CDN, ESM) -->
+    <script type="module">
+      // 최신 12.x 버전으로 통일
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+      // ★ 당신의 실제 구성 (콘솔에서 복사한 값)
+      const firebaseConfig = {
+        apiKey: "AIzaSyCUOvPVhd1zgVOJq3a88MeE4Ew1QgB42xU",
+        authDomain: "vision-ac00e.firebaseapp.com",
+        projectId: "vision-ac00e",
+        storageBucket: "vision-ac00e.firebasestorage.app",
+        messagingSenderId: "973829787287",
+        appId: "1:973829787287:web:3ca6b7f51dceda8eb123d2",
+        measurementId: "G-71PFXDK6S4", // (선택) analytics 쓸 때만 사용
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      // 이미 로그인 상태면 /admin/index.html 로
+      onAuthStateChanged(auth, (user) => {
+        if (user) location.href = "/admin/index.html";
+      });
+
+      loginBtn.onclick = async () => {
+        msg.textContent = "";
+        try {
+          await signInWithEmailAndPassword(auth, email.value, password.value);
+          location.href = "/admin/index.html";
+        } catch (e) {
+          msg.textContent = e.message;
+        }
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>관리자 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-50 text-slate-900">
+    <header class="sticky top-0 bg-white/80 backdrop-blur border-b">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+        <strong>관리자</strong>
+        <span class="text-sm text-slate-500">매물 등록/수정</span>
+        <button
+          id="logoutBtn"
+          class="ml-auto border rounded-lg px-3 py-1.5 text-sm"
+        >
+          로그아웃
+        </button>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+      <section class="bg-white border rounded-2xl shadow p-5">
+        <h2 class="text-lg font-semibold mb-4">새 매물 등록</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm mb-1">제목</label>
+            <input
+              id="title"
+              class="w-full border rounded-lg px-3 py-2"
+              placeholder="예: 남동공단 공장 임대"
+            />
+          </div>
+          <div>
+            <label class="block text-sm mb-1">거래유형</label>
+            <select id="dealType" class="w-full border rounded-lg px-3 py-2">
+              <option>분양</option>
+              <option>매매</option>
+              <option>전세</option>
+              <option selected>월세</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm mb-1">매매가(만원)</label>
+            <input
+              id="price"
+              type="number"
+              class="w-full border rounded-lg px-3 py-2"
+              placeholder="없으면 비움"
+            />
+          </div>
+          <div>
+            <label class="block text-sm mb-1">보증금(만원)</label>
+            <input
+              id="deposit"
+              type="number"
+              class="w-full border rounded-lg px-3 py-2"
+            />
+          </div>
+          <div>
+            <label class="block text-sm mb-1">월세(만원)</label>
+            <input
+              id="rent"
+              type="number"
+              class="w-full border rounded-lg px-3 py-2"
+            />
+          </div>
+          <div>
+            <label class="block text-sm mb-1">면적(평)</label>
+            <input
+              id="sizePyeong"
+              type="number"
+              class="w-full border rounded-lg px-3 py-2"
+            />
+          </div>
+          <div>
+            <label class="block text-sm mb-1">층</label>
+            <input
+              id="floor"
+              class="w-full border rounded-lg px-3 py-2"
+              placeholder="예: 1/2"
+            />
+          </div>
+          <div>
+            <label class="block text-sm mb-1">용도</label>
+            <select id="purpose" class="w-full border rounded-lg px-3 py-2">
+              <option>공장</option>
+              <option>창고</option>
+              <option>사무</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm mb-1">지역</label>
+            <input
+              id="region"
+              class="w-full border rounded-lg px-3 py-2"
+              placeholder="인천 남동구 ..."
+            />
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <label class="block text-sm mb-2">이미지 (여러 장 선택 가능)</label>
+          <input id="images" type="file" multiple accept="image/*" />
+          <div id="progress" class="text-sm text-slate-600 mt-2"></div>
+        </div>
+
+        <div class="mt-5 flex gap-2">
+          <button
+            id="saveBtn"
+            class="bg-slate-900 text-white rounded-lg px-4 py-2"
+          >
+            저장
+          </button>
+          <span id="saveMsg" class="text-sm text-emerald-600"></span>
+        </div>
+      </section>
+
+      <section class="mt-8">
+        <h3 class="font-semibold mb-2">최근 등록 매물</h3>
+        <div id="recent" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+      </section>
+    </main>
+
+    <script type="module" src="/admin/admin.js"></script>
+  </body>
+</html>
