@@ -41,8 +41,8 @@
           <!-- Desktop Navigation -->
           <nav class="hidden lg:flex items-center space-x-1">
             <a
-              href="/"
-              class="px-4 py-2 text-sm font-semibold text-navy-900 hover:bg-slate-200 hover:text-navy-900 rounded-xl transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+              href="/listings.html"
+              class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 hover:text-navy-900 rounded-xl transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
             >
               전체매물
             </a>
@@ -107,8 +107,8 @@
       >
         <nav class="max-w-7xl mx-auto px-4 py-4 space-y-2">
           <a
-            href="/"
-            class="block px-4 py-3 text-base font-semibold text-navy-900 hover:bg-slate-200 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+            href="/listings.html"
+            class="block px-4 py-3 text-base font-semibold text-slate-700 hover:bg-slate-200 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
           >
             전체매물
           </a>
@@ -155,117 +155,202 @@
       </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <!-- 거래유형 탭 -->
-      <div class="flex items-center gap-3 mb-8 overflow-x-auto pb-4">
-        <button
-          data-deal="전체"
-          class="px-8 py-3 bg-navy-900 text-white rounded-2xl font-bold text-sm shadow-lg shadow-navy-900/20 hover:shadow-xl hover:shadow-navy-900/30 transition-all whitespace-nowrap"
-        >
-          전체
-        </button>
-        <button
-          data-deal="분양"
-          class="px-8 py-3 bg-white text-slate-700 rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all whitespace-nowrap border border-slate-200"
-        >
-          분양
-        </button>
-        <button
-          data-deal="매매"
-          class="px-8 py-3 bg-white text-slate-700 rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all whitespace-nowrap border border-slate-200"
-        >
-          매매
-        </button>
-        <button
-          data-deal="전세"
-          class="px-8 py-3 bg-white text-slate-700 rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all whitespace-nowrap border border-slate-200"
-        >
-          전세
-        </button>
-        <button
-          data-deal="월세"
-          class="px-8 py-3 bg-white text-slate-700 rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all whitespace-nowrap border border-slate-200"
-        >
-          월세
-        </button>
+    <!-- Hero Section -->
+    <section
+      class="relative overflow-hidden bg-gradient-to-br from-navy-900 via-slate-900 to-navy-900"
+    >
+      <!-- Background Pattern -->
+      <div class="absolute inset-0 opacity-10">
+        <div
+          class="absolute inset-0"
+          style="
+            background-image: radial-gradient(
+              circle at 2px 2px,
+              white 1px,
+              transparent 0
+            );
+            background-size: 40px 40px;
+          "
+        ></div>
       </div>
 
-      <!-- 필터 카드 -->
-      <section
-        class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-5 mb-10"
+      <!-- Gradient Orbs -->
+      <div
+        class="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"
+      ></div>
+      <div
+        class="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"
+      ></div>
+
+      <div
+        class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28"
       >
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          <select
-            id="region"
-            class="px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none text-sm font-medium text-slate-700 transition-all hover:border-slate-400"
-          >
-            <option value="">지역</option>
-            <option>인천 남동구</option>
-            <option>시흥시</option>
-            <option>김포시</option>
-          </select>
-          <select
-            id="purpose"
-            class="px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none text-sm font-medium text-slate-700 transition-all hover:border-slate-400"
-          >
-            <option value="">용도</option>
-            <option>공장</option>
-            <option>창고</option>
-            <option>사무</option>
-          </select>
-          <input
-            id="minSize"
-            type="number"
-            placeholder="최소평수"
-            class="px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none text-sm font-medium text-slate-700 placeholder-slate-400 transition-all hover:border-slate-400"
-          />
-          <input
-            id="maxSize"
-            type="number"
-            placeholder="최대평수"
-            class="px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none text-sm font-medium text-slate-700 placeholder-slate-400 transition-all hover:border-slate-400"
-          />
-          <input
-            id="minPrice"
-            type="number"
-            placeholder="최소가(만원)"
-            class="px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none text-sm font-medium text-slate-700 placeholder-slate-400 transition-all hover:border-slate-400"
-          />
-          <input
-            id="maxPrice"
-            type="number"
-            placeholder="최대가(만원)"
-            class="px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none text-sm font-medium text-slate-700 placeholder-slate-400 transition-all hover:border-slate-400"
-          />
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <!-- Left Content -->
+          <div class="text-center lg:text-left">
+            <!-- Badge -->
+            <div
+              class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white text-sm font-medium mb-6"
+            >
+              <span
+                class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"
+              ></span>
+              <span>10년 이상 남동공단 전문</span>
+            </div>
+
+            <!-- Main Heading -->
+            <h1
+              class="text-4xl sm:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight"
+            >
+              공장·창고<br />
+              <span
+                class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
+              >
+                전문 부동산
+              </span>
+            </h1>
+
+            <!-- Description -->
+            <p
+              class="text-lg sm:text-xl text-slate-300 mb-8 leading-relaxed max-w-xl mx-auto lg:mx-0"
+            >
+              남동공단, 시화공단, 반월공단 지역의<br class="hidden sm:block" />
+              공장·창고 매매·임대 전문 중개
+            </p>
+
+            <!-- CTA Buttons -->
+            <div
+              class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+            >
+              <a
+                href="/listings.html"
+                class="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-navy-900 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-200"
+              >
+                <span>매물 둘러보기</span>
+                <i
+                  class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"
+                ></i>
+              </a>
+              <a
+                href="#section-request"
+                class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-md border-2 border-white/30 text-white rounded-2xl font-bold text-lg hover:bg-white/20 transition-all duration-200"
+              >
+                <i class="fas fa-phone"></i>
+                <span>상담 문의</span>
+              </a>
+            </div>
+
+            <!-- Stats -->
+            <div
+              class="grid grid-cols-3 gap-6 mt-12 pt-12 border-t border-white/10"
+            >
+              <div class="text-center lg:text-left">
+                <div class="text-3xl font-black text-white mb-1">10+</div>
+                <div class="text-sm text-slate-400">운영 경력 (년)</div>
+              </div>
+              <div class="text-center lg:text-left">
+                <div class="text-3xl font-black text-white mb-1">500+</div>
+                <div class="text-sm text-slate-400">거래 성공</div>
+              </div>
+              <div class="text-center lg:text-left">
+                <div class="text-3xl font-black text-white mb-1">100%</div>
+                <div class="text-sm text-slate-400">고객 만족</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Content - Feature Cards -->
+          <div class="hidden lg:block">
+            <div class="relative">
+              <!-- Floating Cards -->
+              <div class="space-y-4">
+                <!-- Card 1 -->
+                <div
+                  class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
+                >
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0"
+                    >
+                      <i class="fas fa-industry text-white text-2xl"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-white font-bold text-lg mb-1">
+                        공장 전문
+                      </h3>
+                      <p class="text-slate-300 text-sm">
+                        다양한 평수의 공장 매물
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div
+                  class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-all duration-300 transform hover:scale-105 ml-8"
+                >
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0"
+                    >
+                      <i class="fas fa-warehouse text-white text-2xl"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-white font-bold text-lg mb-1">
+                        창고 임대
+                      </h3>
+                      <p class="text-slate-300 text-sm">
+                        맞춤형 창고 물류 공간
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div
+                  class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
+                >
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-14 h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0"
+                    >
+                      <i class="fas fa-handshake text-white text-2xl"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-white font-bold text-lg mb-1">
+                        신뢰 중개
+                      </h3>
+                      <p class="text-slate-300 text-sm">투명하고 공정한 거래</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Decorative Elements -->
+              <div
+                class="absolute -top-4 -right-4 w-72 h-72 bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-full blur-3xl -z-10"
+              ></div>
+            </div>
+          </div>
         </div>
-        <div class="flex gap-3 mt-4">
-          <button
-            id="applyFilters"
-            class="px-6 py-2.5 bg-navy-900 text-white rounded-lg hover:bg-navy-800 transition-all font-bold text-sm shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
-          >
-            필터 적용
-          </button>
-          <button
-            id="resetFilters"
-            class="px-6 py-2.5 bg-white text-slate-700 border-2 border-slate-300 rounded-lg hover:bg-slate-50 hover:border-slate-400 transition-all font-bold text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700"
-          >
-            초기화
-          </button>
-        </div>
-      </section>
+      </div>
 
-      <!-- 결과 요약 -->
-      <div id="summary" class="text-slate-600 font-semibold mb-6 text-lg"></div>
+      <!-- Wave Divider -->
+      <div class="relative h-16 sm:h-24">
+        <svg
+          class="absolute bottom-0 w-full h-16 sm:h-24 text-slate-50"
+          viewBox="0 0 1440 120"
+          preserveAspectRatio="none"
+        >
+          <path
+            fill="currentColor"
+            d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"
+          ></path>
+        </svg>
+      </div>
+    </section>
 
-      <!-- 매물 그리드 -->
-      <section
-        id="grid"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mb-12"
-      ></section>
-
-      <!-- 페이지네이션 -->
-      <div id="pagination" class="flex justify-center gap-2"></div>
-
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <!-- 섹션: 의뢰하기 -->
       <section id="section-request" class="mt-16 pt-10">
         <div class="max-w-4xl mx-auto px-4 text-center">
@@ -658,7 +743,10 @@
             <h4 class="text-sm font-semibold text-slate-900 mb-3">주요 메뉴</h4>
             <ul class="space-y-2 text-slate-600 text-sm">
               <li>
-                <a href="/" class="hover:text-slate-900 transition-colors">
+                <a
+                  href="/listings.html"
+                  class="hover:text-slate-900 transition-colors"
+                >
                   전체매물
                 </a>
               </li>
@@ -699,6 +787,6 @@
       </div>
     </footer>
 
-    <script type="module" src="/src/app.js"></script>
+    <script type="module" src="/src/home.js"></script>
   </body>
 </html>

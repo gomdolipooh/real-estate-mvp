@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>전체 매물 - 비전부동산</title>
+    <meta name="description" content="공장·창고 전체 매물 목록" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: {
+                900: "#0b1b34",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+    <!-- Sticky Header -->
+    <header
+      class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200"
+    >
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between h-20">
+          <!-- Logo -->
+          <a
+            href="/"
+            class="text-2xl font-black text-navy-900 hover:opacity-80 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+          >
+            비전부동산
+          </a>
+
+          <!-- Desktop Navigation -->
+          <nav class="hidden lg:flex items-center space-x-1">
+            <a
+              href="/listings.html"
+              class="px-4 py-2 text-sm font-semibold text-navy-900 bg-slate-200 rounded-xl transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+            >
+              전체매물
+            </a>
+            <a
+              href="/#section-request"
+              class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 hover:text-navy-900 rounded-xl transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+            >
+              의뢰하기
+            </a>
+            <a
+              href="/#section-about"
+              class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 hover:text-navy-900 rounded-xl transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+            >
+              회사소개
+            </a>
+            <a
+              href="/#section-notice"
+              class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 hover:text-navy-900 rounded-xl transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+            >
+              공지사항
+            </a>
+          </nav>
+
+          <!-- Search & Mobile Menu Button -->
+          <div class="flex items-center gap-3">
+            <!-- Desktop Search Form -->
+            <form id="searchForm" class="hidden md:flex items-center gap-2">
+              <label for="q" class="sr-only">매물 검색</label>
+              <input
+                type="search"
+                id="q"
+                name="q"
+                aria-label="주소, 용도, 키워드로 매물 검색"
+                placeholder="주소, 용도, 키워드"
+                class="w-64 px-4 py-2 text-sm text-slate-700 border border-slate-300 rounded-xl focus:ring-4 focus:ring-slate-700/20 focus:border-slate-700 outline-none transition-all placeholder-slate-400"
+              />
+              <button
+                type="submit"
+                class="px-6 py-2 bg-navy-900 text-white rounded-xl hover:bg-navy-900/90 transition-colors font-semibold text-sm shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900 focus-visible:ring-4 focus-visible:ring-navy-900/20"
+              >
+                검색
+              </button>
+            </form>
+
+            <!-- Mobile Menu Button -->
+            <button
+              id="mobileMenuToggle"
+              class="lg:hidden p-2 text-navy-900 hover:bg-slate-200 rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+              aria-label="메뉴 열기"
+              aria-expanded="false"
+            >
+              <i class="fas fa-bars text-xl"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Drawer Menu -->
+      <div
+        id="mobileDrawer"
+        class="hidden lg:hidden border-t border-slate-200 bg-white/95 backdrop-blur-md"
+      >
+        <nav class="max-w-7xl mx-auto px-4 py-4 space-y-2">
+          <a
+            href="/listings.html"
+            class="block px-4 py-3 text-base font-semibold text-navy-900 bg-slate-200 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+          >
+            전체매물
+          </a>
+          <a
+            href="/#section-request"
+            class="block px-4 py-3 text-base font-semibold text-slate-700 hover:bg-slate-200 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+          >
+            의뢰하기
+          </a>
+          <a
+            href="/#section-about"
+            class="block px-4 py-3 text-base font-semibold text-slate-700 hover:bg-slate-200 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+          >
+            회사소개
+          </a>
+          <a
+            href="/#section-notice"
+            class="block px-4 py-3 text-base font-semibold text-slate-700 hover:bg-slate-200 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+          >
+            공지사항
+          </a>
+
+          <!-- Mobile Search Form -->
+          <form id="mobileSearchForm" class="pt-2">
+            <label for="mobileQ" class="sr-only">매물 검색</label>
+            <div class="flex gap-2">
+              <input
+                type="search"
+                id="mobileQ"
+                name="mobileQ"
+                aria-label="주소, 용도, 키워드로 매물 검색"
+                placeholder="주소, 용도, 키워드"
+                class="flex-1 px-4 py-2 text-sm text-slate-700 border border-slate-300 rounded-xl focus:ring-4 focus:ring-slate-700/20 focus:border-slate-700 outline-none transition-all placeholder-slate-400"
+              />
+              <button
+                type="submit"
+                class="px-6 py-2 bg-navy-900 text-white rounded-xl hover:bg-navy-900/90 transition-colors font-semibold text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900 focus-visible:ring-4 focus-visible:ring-navy-900/20"
+              >
+                검색
+              </button>
+            </div>
+          </form>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-navy-900 to-slate-800 text-white py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-3 mb-4">
+          <i class="fas fa-building text-3xl"></i>
+          <h1 class="text-3xl md:text-4xl font-bold">전체 매물</h1>
+        </div>
+        <p class="text-slate-300 text-lg">
+          공장·창고·토지 매매·임대 매물을 한눈에 확인하세요
+        </p>
+      </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <!-- 거래유형 탭 -->
+      <div class="flex items-center gap-3 mb-8 overflow-x-auto pb-4">
+        <button
+          data-deal="전체"
+          class="px-8 py-3 bg-navy-900 text-white rounded-2xl font-bold text-sm shadow-lg shadow-navy-900/20 hover:shadow-xl hover:shadow-navy-900/30 transition-all whitespace-nowrap"
+        >
+          전체
+        </button>
+        <button
+          data-deal="분양"
+          class="px-8 py-3 bg-white text-slate-700 rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all whitespace-nowrap border border-slate-200"
+        >
+          분양
+        </button>
+        <button
+          data-deal="매매"
+          class="px-8 py-3 bg-white text-slate-700 rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all whitespace-nowrap border border-slate-200"
+        >
+          매매
+        </button>
+        <button
+          data-deal="전세"
+          class="px-8 py-3 bg-white text-slate-700 rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all whitespace-nowrap border border-slate-200"
+        >
+          전세
+        </button>
+        <button
+          data-deal="월세"
+          class="px-8 py-3 bg-white text-slate-700 rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all whitespace-nowrap border border-slate-200"
+        >
+          월세
+        </button>
+      </div>
+
+      <!-- 필터 카드 -->
+      <section
+        class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-5 mb-10"
+      >
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <select
+            id="region"
+            class="px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none text-sm font-medium text-slate-700 transition-all hover:border-slate-400"
+          >
+            <option value="">지역</option>
+            <option>인천 남동구</option>
+            <option>시흥시</option>
+            <option>김포시</option>
+          </select>
+          <select
+            id="purpose"
+            class="px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none text-sm font-medium text-slate-700 transition-all hover:border-slate-400"
+          >
+            <option value="">용도</option>
+            <option>공장</option>
+            <option>창고</option>
+            <option>사무</option>
+          </select>
+          <input
+            id="minSize"
+            type="number"
+            placeholder="최소평수"
+            class="px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none text-sm font-medium text-slate-700 placeholder-slate-400 transition-all hover:border-slate-400"
+          />
+          <input
+            id="maxSize"
+            type="number"
+            placeholder="최대평수"
+            class="px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none text-sm font-medium text-slate-700 placeholder-slate-400 transition-all hover:border-slate-400"
+          />
+          <input
+            id="minPrice"
+            type="number"
+            placeholder="최소가(만원)"
+            class="px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none text-sm font-medium text-slate-700 placeholder-slate-400 transition-all hover:border-slate-400"
+          />
+          <input
+            id="maxPrice"
+            type="number"
+            placeholder="최대가(만원)"
+            class="px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none text-sm font-medium text-slate-700 placeholder-slate-400 transition-all hover:border-slate-400"
+          />
+        </div>
+        <div class="flex gap-3 mt-4">
+          <button
+            id="applyFilters"
+            class="px-6 py-2.5 bg-navy-900 text-white rounded-lg hover:bg-navy-800 transition-all font-bold text-sm shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+          >
+            필터 적용
+          </button>
+          <button
+            id="resetFilters"
+            class="px-6 py-2.5 bg-white text-slate-700 border-2 border-slate-300 rounded-lg hover:bg-slate-50 hover:border-slate-400 transition-all font-bold text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700"
+          >
+            초기화
+          </button>
+        </div>
+      </section>
+
+      <!-- 결과 요약 -->
+      <div id="summary" class="text-slate-600 font-semibold mb-6 text-lg"></div>
+
+      <!-- 매물 그리드 -->
+      <section
+        id="grid"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mb-12"
+      ></section>
+
+      <!-- 페이지네이션 -->
+      <div id="pagination" class="flex justify-center gap-2"></div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-16">
+      <div class="max-w-7xl mx-auto px-4 py-12">
+        <!-- 푸터 메인 콘텐츠 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <!-- 회사 정보 -->
+          <div>
+            <h3 class="text-lg font-bold text-navy-900 mb-3">비전부동산</h3>
+            <p class="text-slate-600 text-sm leading-relaxed mb-4">
+              남동비전 공인중개사사무소<br />
+              공장·토지 매매·임대·지식산업센터 분양 전문
+            </p>
+            <p class="text-slate-600 text-xs">
+              인천광역시 남동구 은청로 4-7<br />
+              산업용품상가 A동 329-330호
+            </p>
+          </div>
+
+          <!-- 연락처 -->
+          <div>
+            <h4 class="text-sm font-semibold text-slate-900 mb-3">연락처</h4>
+            <ul class="space-y-2 text-slate-600 text-sm">
+              <li>
+                <a
+                  href="tel:0328125001"
+                  class="hover:text-slate-900 transition-colors flex items-center gap-2"
+                >
+                  <i class="fas fa-phone text-xs"></i>
+                  <span>(032) 812-5001</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="tel:0328183663"
+                  class="hover:text-slate-900 transition-colors flex items-center gap-2"
+                >
+                  <i class="fas fa-phone text-xs"></i>
+                  <span>(032) 818-3663</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="mailto:vs1705@daum.net"
+                  class="hover:text-slate-900 transition-colors flex items-center gap-2"
+                >
+                  <i class="fas fa-envelope text-xs"></i>
+                  <span>vs1705@daum.net</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://pf.kakao.com/_channelId"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:text-slate-900 transition-colors flex items-center gap-2"
+                >
+                  <i class="fab fa-telegram-plane text-xs"></i>
+                  <span>카카오톡 문의</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- 주요 페이지 링크 -->
+          <div>
+            <h4 class="text-sm font-semibold text-slate-900 mb-3">주요 메뉴</h4>
+            <ul class="space-y-2 text-slate-600 text-sm">
+              <li>
+                <a href="/listings.html" class="hover:text-slate-900 transition-colors">
+                  전체매물
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/#section-request"
+                  class="hover:text-slate-900 transition-colors"
+                >
+                  의뢰하기
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/#section-about"
+                  class="hover:text-slate-900 transition-colors"
+                >
+                  회사소개
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/#section-notice"
+                  class="hover:text-slate-900 transition-colors"
+                >
+                  공지사항
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 하단 저작권 -->
+        <div class="border-t border-slate-200 pt-6">
+          <p class="text-slate-500 text-xs text-center">
+            © 2025 비전부동산 (남동비전 공인중개사사무소). All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>
+
