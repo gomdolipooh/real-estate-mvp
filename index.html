@@ -32,7 +32,7 @@
         <div class="flex items-center justify-between h-20">
           <!-- Logo -->
           <a
-            href="/"
+            href="index.html"
             class="text-2xl font-black text-navy-900 hover:opacity-80 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
           >
             비전부동산
@@ -41,7 +41,7 @@
           <!-- Desktop Navigation -->
           <nav class="hidden lg:flex items-center space-x-1">
             <a
-              href="/listings.html"
+              href="listings.html"
               class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 hover:text-navy-900 rounded-xl transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
             >
               전체매물
@@ -107,7 +107,7 @@
       >
         <nav class="max-w-7xl mx-auto px-4 py-4 space-y-2">
           <a
-            href="/listings.html"
+            href="listings.html"
             class="block px-4 py-3 text-base font-semibold text-slate-700 hover:bg-slate-200 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
           >
             전체매물
@@ -220,25 +220,44 @@
 
             <!-- CTA Buttons -->
             <div
-              class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+              class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mt-2"
             >
               <a
-                href="/listings.html"
-                class="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-navy-900 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-200"
+                href="listings.html"
+                class="group relative inline-flex items-center justify-center gap-3 px-10 py-5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-black text-xl shadow-2xl hover:shadow-blue-500/50 hover:scale-110 transition-all duration-300 overflow-hidden"
               >
-                <span>매물 둘러보기</span>
+                <div
+                  class="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                ></div>
+                <span class="relative flex items-center gap-3">
+                  <i class="fas fa-building text-2xl"></i>
+                  <span>매물 둘러보기</span>
+                </span>
                 <i
-                  class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"
+                  class="fas fa-arrow-right relative group-hover:translate-x-2 transition-transform duration-300 text-xl"
                 ></i>
               </a>
               <a
                 href="#section-request"
-                class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-md border-2 border-white/30 text-white rounded-2xl font-bold text-lg hover:bg-white/20 transition-all duration-200"
+                class="group relative inline-flex items-center justify-center gap-3 px-10 py-5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-2xl font-black text-xl shadow-2xl hover:shadow-emerald-500/50 hover:scale-110 transition-all duration-300 overflow-hidden"
               >
-                <i class="fas fa-phone"></i>
-                <span>상담 문의</span>
+                <div
+                  class="absolute inset-0 bg-gradient-to-r from-emerald-600 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                ></div>
+                <span class="relative flex items-center gap-3">
+                  <i class="fas fa-phone-volume text-2xl animate-pulse"></i>
+                  <span>상담 문의</span>
+                </span>
               </a>
             </div>
+
+            <!-- 추가 안내 텍스트 -->
+            <p
+              class="text-white/80 text-sm mt-4 flex items-center gap-2 justify-center lg:justify-start"
+            >
+              <i class="fas fa-check-circle text-emerald-400"></i>
+              <span>전화 상담 무료 | 빠른 응대 보장</span>
+            </p>
 
             <!-- Stats -->
             <div
@@ -347,6 +366,460 @@
             d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"
           ></path>
         </svg>
+      </div>
+    </section>
+
+    <!-- 카테고리별 Top 3 매물 섹션 -->
+    <section class="bg-gradient-to-br from-slate-50 to-blue-50 py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- 섹션 헤더 -->
+        <div class="text-center mb-16">
+          <h2
+            class="text-4xl md:text-5xl font-black text-slate-900 mb-6 relative inline-block"
+          >
+            <span
+              class="relative z-10 bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 bg-clip-text text-transparent"
+              style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1)"
+            >
+              인기 매물 카테고리
+            </span>
+            <div
+              class="absolute -bottom-2 left-0 right-0 h-3 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 opacity-30 blur-sm"
+            ></div>
+          </h2>
+          <br />
+          <div class="relative inline-block mt-2">
+            <div class="text-6xl md:text-7xl font-black mb-4 relative">
+              <!-- 3D 그림자 효과 -->
+              <div
+                class="absolute inset-0 text-red-700 opacity-50 blur-sm"
+                style="transform: translate(3px, 3px)"
+              >
+                TOP 3
+              </div>
+              <div
+                class="absolute inset-0 text-red-600 opacity-70"
+                style="transform: translate(2px, 2px)"
+              >
+                TOP 3
+              </div>
+              <!-- 메인 텍스트 -->
+              <div
+                class="relative bg-gradient-to-br from-red-500 via-red-600 to-red-700 bg-clip-text text-transparent animate-pulse"
+              >
+                TOP 3
+              </div>
+              <!-- 광택 효과 -->
+              <div
+                class="absolute inset-0 bg-gradient-to-b from-white to-transparent opacity-20"
+                style="clip-path: polygon(0 0, 100% 0, 100% 40%, 0 40%)"
+              ></div>
+            </div>
+            <!-- 하단 네온 라인 -->
+            <div
+              class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent rounded-full blur-sm"
+            ></div>
+          </div>
+          <p class="text-slate-600 text-lg mt-6">
+            평수별, 업종별로 엄선한 추천 매물을 확인하세요
+          </p>
+        </div>
+
+        <!-- 카테고리 1: 소형 평수 -->
+        <div class="mb-20">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h3
+                class="text-2xl md:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3"
+              >
+                <span
+                  class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white text-xl"
+                >
+                  <i class="fas fa-home"></i>
+                </span>
+                소형 평수 (100평 미만)
+              </h3>
+              <p class="text-slate-600">소규모 사업에 최적화된 공간</p>
+            </div>
+            <a
+              href="listings.html?maxSize=100"
+              class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+            >
+              <span>전체보기</span>
+              <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            id="category-small"
+          >
+            <!-- 샘플 카드 1 -->
+            <article
+              class="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+            >
+              <div
+                class="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 relative overflow-hidden"
+              >
+                <img
+                  src="/assets/placeholder.jpg"
+                  alt="남동공단 소형 공장"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div class="absolute top-3 left-3">
+                  <span
+                    class="px-3 py-1 bg-navy-900 text-white text-xs font-bold rounded-full"
+                    >월세</span
+                  >
+                </div>
+              </div>
+              <div class="p-5">
+                <h4
+                  class="font-bold text-lg text-slate-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors"
+                >
+                  남동공단 소형 공장 임대 - 주차 편리
+                </h4>
+                <div class="space-y-2 mb-4">
+                  <p class="text-2xl font-black text-navy-900">3,000 / 300</p>
+                  <div class="flex items-center gap-2 text-sm text-slate-600">
+                    <i class="fas fa-map-marker-alt text-slate-400"></i>
+                    <span>인천 남동구</span>
+                  </div>
+                  <div class="flex items-center gap-4 text-sm text-slate-600">
+                    <span class="flex items-center gap-1">
+                      <i class="fas fa-ruler-combined text-slate-400"></i>
+                      80평
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <i class="fas fa-layer-group text-slate-400"></i>
+                      1/2
+                    </span>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <a
+                    href="listing.html?id=2001"
+                    class="flex-1 px-4 py-2 bg-navy-900 text-white text-sm font-semibold rounded-lg hover:bg-navy-800 transition-colors text-center"
+                    >상세보기</a
+                  >
+                  <a
+                    href="tel:0328125001"
+                    class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <i class="fas fa-phone"></i>
+                  </a>
+                </div>
+              </div>
+            </article>
+
+            <!-- 샘플 카드 2 -->
+            <article
+              class="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+            >
+              <div
+                class="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 relative overflow-hidden"
+              >
+                <img
+                  src="/assets/placeholder.jpg"
+                  alt="시흥 창고형 공장"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div class="absolute top-3 left-3">
+                  <span
+                    class="px-3 py-1 bg-navy-900 text-white text-xs font-bold rounded-full"
+                    >월세</span
+                  >
+                </div>
+              </div>
+              <div class="p-5">
+                <h4
+                  class="font-bold text-lg text-slate-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors"
+                >
+                  시흥 정왕동 창고형 공장
+                </h4>
+                <div class="space-y-2 mb-4">
+                  <p class="text-2xl font-black text-navy-900">2,500 / 250</p>
+                  <div class="flex items-center gap-2 text-sm text-slate-600">
+                    <i class="fas fa-map-marker-alt text-slate-400"></i>
+                    <span>시흥시 정왕동</span>
+                  </div>
+                  <div class="flex items-center gap-4 text-sm text-slate-600">
+                    <span class="flex items-center gap-1">
+                      <i class="fas fa-ruler-combined text-slate-400"></i>
+                      65평
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <i class="fas fa-layer-group text-slate-400"></i>
+                      1/1
+                    </span>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <a
+                    href="listing.html?id=2002"
+                    class="flex-1 px-4 py-2 bg-navy-900 text-white text-sm font-semibold rounded-lg hover:bg-navy-800 transition-colors text-center"
+                    >상세보기</a
+                  >
+                  <a
+                    href="tel:0328125001"
+                    class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <i class="fas fa-phone"></i>
+                  </a>
+                </div>
+              </div>
+            </article>
+
+            <!-- 샘플 카드 3 -->
+            <article
+              class="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+            >
+              <div
+                class="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 relative overflow-hidden"
+              >
+                <img
+                  src="/assets/placeholder.jpg"
+                  alt="고잔동 소형 사무실"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div class="absolute top-3 left-3">
+                  <span
+                    class="px-3 py-1 bg-navy-900 text-white text-xs font-bold rounded-full"
+                    >전세</span
+                  >
+                </div>
+              </div>
+              <div class="p-5">
+                <h4
+                  class="font-bold text-lg text-slate-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors"
+                >
+                  고잔동 소형 사무실 겸 창고
+                </h4>
+                <div class="space-y-2 mb-4">
+                  <p class="text-2xl font-black text-navy-900">전세 5,000</p>
+                  <div class="flex items-center gap-2 text-sm text-slate-600">
+                    <i class="fas fa-map-marker-alt text-slate-400"></i>
+                    <span>인천 남동구 고잔동</span>
+                  </div>
+                  <div class="flex items-center gap-4 text-sm text-slate-600">
+                    <span class="flex items-center gap-1">
+                      <i class="fas fa-ruler-combined text-slate-400"></i>
+                      45평
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <i class="fas fa-layer-group text-slate-400"></i>
+                      2/3
+                    </span>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <a
+                    href="listing.html?id=2003"
+                    class="flex-1 px-4 py-2 bg-navy-900 text-white text-sm font-semibold rounded-lg hover:bg-navy-800 transition-colors text-center"
+                    >상세보기</a
+                  >
+                  <a
+                    href="tel:0328125001"
+                    class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <i class="fas fa-phone"></i>
+                  </a>
+                </div>
+              </div>
+            </article>
+          </div>
+          <a
+            href="listings.html?maxSize=100"
+            class="md:hidden mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+          >
+            <span>전체보기</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 카테고리 2: 100평 ~ 300평 -->
+        <div class="mb-20">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h3
+                class="text-2xl md:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3"
+              >
+                <span
+                  class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-xl"
+                >
+                  <i class="fas fa-warehouse"></i>
+                </span>
+                중형 평수 (100평 ~ 300평)
+              </h3>
+              <p class="text-slate-600">중소기업 규모에 적합한 공간</p>
+            </div>
+            <a
+              href="listings.html?minSize=100&maxSize=300"
+              class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+            >
+              <span>전체보기</span>
+              <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            id="category-medium"
+          ></div>
+          <a
+            href="listings.html?minSize=100&maxSize=300"
+            class="md:hidden mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+          >
+            <span>전체보기</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 카테고리 3: 300평 ~ 500평 -->
+        <div class="mb-20">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h3
+                class="text-2xl md:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3"
+              >
+                <span
+                  class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center text-white text-xl"
+                >
+                  <i class="fas fa-industry"></i>
+                </span>
+                대형 평수 (300평 ~ 500평)
+              </h3>
+              <p class="text-slate-600">대규모 생산 시설에 최적화</p>
+            </div>
+            <a
+              href="listings.html?minSize=300&maxSize=500"
+              class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+            >
+              <span>전체보기</span>
+              <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            id="category-large"
+          ></div>
+          <a
+            href="listings.html?minSize=300&maxSize=500"
+            class="md:hidden mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+          >
+            <span>전체보기</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 카테고리 4: 화장품 공장 -->
+        <div class="mb-20">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h3
+                class="text-2xl md:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3"
+              >
+                <span
+                  class="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center text-white text-xl"
+                >
+                  <i class="fas fa-flask"></i>
+                </span>
+                화장품 공장
+              </h3>
+              <p class="text-slate-600">청정 환경이 필요한 화장품 제조 시설</p>
+            </div>
+            <a
+              href="listings.html?q=화장품"
+              class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+            >
+              <span>전체보기</span>
+              <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            id="category-cosmetics"
+          ></div>
+          <a
+            href="listings.html?q=화장품"
+            class="md:hidden mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+          >
+            <span>전체보기</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 카테고리 5: 금속, 기계 및 부품 제조 공장 -->
+        <div class="mb-20">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h3
+                class="text-2xl md:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3"
+              >
+                <span
+                  class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-white text-xl"
+                >
+                  <i class="fas fa-cogs"></i>
+                </span>
+                금속·기계·부품 제조 공장
+              </h3>
+              <p class="text-slate-600">중장비 작업이 가능한 제조 시설</p>
+            </div>
+            <a
+              href="listings.html?q=금속"
+              class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+            >
+              <span>전체보기</span>
+              <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            id="category-metal"
+          ></div>
+          <a
+            href="listings.html?q=금속"
+            class="md:hidden mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+          >
+            <span>전체보기</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 카테고리 6: 식품 공장 -->
+        <div class="mb-20">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h3
+                class="text-2xl md:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3"
+              >
+                <span
+                  class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-white text-xl"
+                >
+                  <i class="fas fa-utensils"></i>
+                </span>
+                식품 공장
+              </h3>
+              <p class="text-slate-600">위생 시설이 완비된 식품 제조 공간</p>
+            </div>
+            <a
+              href="listings.html?q=식품"
+              class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+            >
+              <span>전체보기</span>
+              <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            id="category-food"
+          ></div>
+          <a
+            href="listings.html?q=식품"
+            class="md:hidden mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+          >
+            <span>전체보기</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
       </div>
     </section>
 
@@ -744,7 +1217,7 @@
             <ul class="space-y-2 text-slate-600 text-sm">
               <li>
                 <a
-                  href="/listings.html"
+                  href="listings.html"
                   class="hover:text-slate-900 transition-colors"
                 >
                   전체매물
