@@ -1,36 +1,91 @@
 // 메인 페이지 전용 JavaScript
 import { qs } from "./utils.js";
 import { fmt } from "./utils.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+// Firebase 설정
+const firebaseConfig = {
+  apiKey: "AIzaSyCUOvPVhd1zgVOJq3a88MeE4Ew1QgB42xU",
+  authDomain: "vision-ac00e.firebaseapp.com",
+  projectId: "vision-ac00e",
+  storageBucket: "vision-ac00e.firebasestorage.app",
+  messagingSenderId: "973829787287",
+  appId: "1:973829787287:web:3ca6b7f51dceda8eb123d2",
+  measurementId: "G-71PFXDK6S4",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 // 매물 데이터 로드
 let listings = [];
 
 async function loadListings() {
   try {
-    const response = await fetch("/data/listings.json");
-    listings = await response.json();
+    console.log("🔥 Firebase에서 매물 로드 중...");
+    
+    // 인덱스 오류 해결: 단순 쿼리로 변경
+    const snap = await getDocs(collection(db, "listings"));
+
+    listings = snap.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+      .filter((item) => item.status === "published") // 클라이언트 사이드 필터링
+      .sort((a, b) => {
+        // createdAt으로 정렬
+        const aTime = a.createdAt?.seconds || 0;
+        const bTime = b.createdAt?.seconds || 0;
+        return bTime - aTime;
+      });
+
+    console.log(`✅ ${listings.length}개 매물 로드 완료`);
     renderCategories();
   } catch (error) {
-    console.error("매물 데이터 로드 실패:", error);
+    console.error("⚠️ Firebase 매물 로드 실패, 샘플 데이터 사용:", error);
+    // Firebase 로드 실패 시 샘플 데이터만 사용
+    renderCategories();
   }
 }
 
 // 매물 카드 생성 함수
 function createListingCard(listing) {
-  const priceText =
-    listing.dealType === "매매"
-      ? `매매 ${fmt(listing.price)}`
-      : listing.dealType === "분양"
-      ? `분양 ${fmt(listing.price)}`
-      : `${fmt(listing.deposit)} / ${fmt(listing.rent)}`;
+  // 가격 포맷 헬퍼 함수
+  const formatPrice = (n) => {
+    if (!n) return "0";
+    return n.toLocaleString("ko-KR") + "만";
+  };
+
+  // 가격 텍스트 생성
+  let priceText = "";
+  if (listing.dealType === "매매" || listing.dealType === "분양") {
+    priceText = listing.price ? `${listing.dealType} ${formatPrice(listing.price)}` : `${listing.dealType}`;
+  } else if (listing.dealType === "전세") {
+    priceText = listing.deposit ? `전세 ${formatPrice(listing.deposit)}` : "전세";
+  } else if (listing.dealType === "월세") {
+    const depositText = formatPrice(listing.deposit || 0);
+    const rentText = formatPrice(listing.rent || 0);
+    priceText = `${depositText} / ${rentText}`;
+  } else {
+    priceText = listing.dealType || "문의";
+  }
+
+  // 이미지 URL (첫 번째 이미지 또는 placeholder)
+  const imageUrl = (listing.images && listing.images[0]) ? listing.images[0] : "/assets/placeholder.jpg";
 
   return `
     <article class="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
       <div class="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 relative overflow-hidden">
-        <img src="${listing.images[0]}" alt="${listing.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+        <img src="${imageUrl}" alt="${listing.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='/assets/placeholder.jpg'" />
         <div class="absolute top-3 left-3">
           <span class="px-3 py-1 bg-navy-900 text-white text-xs font-bold rounded-full">
-            ${listing.dealType}
+            ${listing.dealType || "문의"}
           </span>
         </div>
       </div>
@@ -44,16 +99,16 @@ function createListingCard(listing) {
           </p>
           <div class="flex items-center gap-2 text-sm text-slate-600">
             <i class="fas fa-map-marker-alt text-slate-400"></i>
-            <span>${listing.region}</span>
+            <span>${listing.region || "지역 미정"}</span>
           </div>
           <div class="flex items-center gap-4 text-sm text-slate-600">
             <span class="flex items-center gap-1">
               <i class="fas fa-ruler-combined text-slate-400"></i>
-              ${listing.sizePyeong}평
+              ${listing.sizePyeong || "-"}평
             </span>
             <span class="flex items-center gap-1">
               <i class="fas fa-layer-group text-slate-400"></i>
-              ${listing.floor}
+              ${listing.floor || "-"}
             </span>
           </div>
         </div>
@@ -61,7 +116,7 @@ function createListingCard(listing) {
           <a href="listing.html?id=${listing.id}" class="flex-1 px-4 py-2 bg-navy-900 text-white text-sm font-semibold rounded-lg hover:bg-navy-800 transition-colors text-center">
             상세보기
           </a>
-          <a href="tel:${listing.contact.phone}" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
+          <a href="tel:0328125001" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
             <i class="fas fa-phone"></i>
           </a>
         </div>
@@ -121,64 +176,129 @@ function generateSampleListings() {
 
 // 카테고리별 매물 렌더링
 function renderCategories() {
-  const sampleData = generateSampleListings();
+  console.log(`📊 카테고리별 매물 렌더링 시작 (총 ${listings.length}개)`);
+
+  // 매물이 없을 때 샘플 데이터 사용
+  if (listings.length === 0) {
+    console.log("⚠️ 등록된 매물이 없어 샘플 데이터 사용");
+    const sampleData = generateSampleListings();
+    
+    renderCategory("#category-small", sampleData.small.slice(0, 3));
+    renderCategory("#category-medium", sampleData.medium.slice(0, 3));
+    renderCategory("#category-large", sampleData.large.slice(0, 3));
+    renderCategory("#category-cosmetics", sampleData.cosmetics.slice(0, 3));
+    renderCategory("#category-metal", sampleData.metal.slice(0, 3));
+    renderCategory("#category-food", sampleData.food.slice(0, 3));
+    return;
+  }
+
+  console.log("✅ 실제 등록된 매물 사용");
+
+  // 각 카테고리별로 매물 가져오기 (featured 우선)
+  renderCategory("#category-small", getFeaturedListings("small"));
+  renderCategory("#category-medium", getFeaturedListings("medium"));
+  renderCategory("#category-large", getFeaturedListings("large"));
+  renderCategory("#category-cosmetics", getFeaturedListings("cosmetics"));
+  renderCategory("#category-metal", getFeaturedListings("metal"));
+  renderCategory("#category-food", getFeaturedListings("food"));
+}
+
+// 카테고리별 매물 가져오기 (featured 우선, 없으면 자동 필터링)
+function getFeaturedListings(category) {
+  console.log(`\n📋 ${category} 카테고리 처리 시작`);
+  console.log(`총 매물 수: ${listings.length}`);
   
-  // 실제 데이터와 샘플 데이터 병합
-  const allListings = [...listings];
+  // 디버깅: 모든 매물의 featured 필드 확인
+  listings.forEach((l, idx) => {
+    if (l.featured) {
+      console.log(`매물 ${idx}: "${l.title}" - featured:`, l.featured);
+    }
+  });
   
-  // 1. 소형 평수 (100평 미만)
-  let smallListings = allListings.filter(l => l.sizePyeong < 100);
-  if (smallListings.length < 3) {
-    smallListings = [...smallListings, ...sampleData.small].slice(0, 3);
-  } else {
-    smallListings = smallListings.slice(0, 3);
-  }
-  const smallContainer = qs("#category-small");
-  if (smallContainer) {
-    smallContainer.innerHTML = smallListings.map(createListingCard).join("");
+  // 1. featured 필드가 있는 매물 찾기
+  const featuredItems = listings
+    .filter(l => {
+      const hasFeatured = l.featured && l.featured[category];
+      if (hasFeatured) {
+        console.log(`✅ Featured 발견: "${l.title}" - ${category} ${l.featured[category]}순위`);
+      }
+      return hasFeatured;
+    })
+    .sort((a, b) => a.featured[category] - b.featured[category])
+    .slice(0, 3);
+
+  console.log(`✨ ${category}: featured 매물 ${featuredItems.length}개 발견`);
+
+  if (featuredItems.length >= 3) {
+    console.log(`→ Featured 매물 3개로 충분, 반환:`, featuredItems.map(f => f.title));
+    return featuredItems;
   }
 
-  // 2. 중형 평수 (100평 ~ 300평)
-  let mediumListings = allListings.filter(l => l.sizePyeong >= 100 && l.sizePyeong <= 300);
-  if (mediumListings.length < 3) {
-    mediumListings = [...mediumListings, ...sampleData.medium].slice(0, 3);
-  } else {
-    mediumListings = mediumListings.slice(0, 3);
-  }
-  const mediumContainer = qs("#category-medium");
-  if (mediumContainer) {
-    mediumContainer.innerHTML = mediumListings.map(createListingCard).join("");
+  // 2. featured 매물이 부족하면 자동 필터링으로 채우기
+  console.log(`🔄 ${category}: featured ${featuredItems.length}개 + 자동 필터링으로 채우기`);
+  
+  let autoFiltered = [];
+  
+  switch(category) {
+    case "small":
+      autoFiltered = listings.filter(l => 
+        l.sizePyeong && l.sizePyeong < 100 && 
+        !featuredItems.some(f => f.id === l.id)
+      );
+      break;
+    case "medium":
+      autoFiltered = listings.filter(l => 
+        l.sizePyeong && l.sizePyeong >= 100 && l.sizePyeong <= 300 &&
+        !featuredItems.some(f => f.id === l.id)
+      );
+      break;
+    case "large":
+      autoFiltered = listings.filter(l => 
+        l.sizePyeong && l.sizePyeong >= 300 && l.sizePyeong <= 500 &&
+        !featuredItems.some(f => f.id === l.id)
+      );
+      break;
+    case "cosmetics":
+      autoFiltered = listings.filter(l => 
+        ((l.title && l.title.includes("화장품")) || (l.purpose && l.purpose.includes("화장품"))) &&
+        !featuredItems.some(f => f.id === l.id)
+      );
+      break;
+    case "metal":
+      autoFiltered = listings.filter(l => 
+        ((l.title && (l.title.includes("금속") || l.title.includes("기계") || l.title.includes("부품"))) ||
+         (l.purpose && (l.purpose.includes("금속") || l.purpose.includes("기계") || l.purpose.includes("부품")))) &&
+        !featuredItems.some(f => f.id === l.id)
+      );
+      break;
+    case "food":
+      autoFiltered = listings.filter(l => 
+        ((l.title && l.title.includes("식품")) || (l.purpose && l.purpose.includes("식품"))) &&
+        !featuredItems.some(f => f.id === l.id)
+      );
+      break;
   }
 
-  // 3. 대형 평수 (300평 ~ 500평)
-  let largeListings = allListings.filter(l => l.sizePyeong >= 300 && l.sizePyeong <= 500);
-  if (largeListings.length < 3) {
-    largeListings = [...largeListings, ...sampleData.large].slice(0, 3);
-  } else {
-    largeListings = largeListings.slice(0, 3);
-  }
-  const largeContainer = qs("#category-large");
-  if (largeContainer) {
-    largeContainer.innerHTML = largeListings.map(createListingCard).join("");
+  // featured + 자동 필터링 결합하여 3개 반환
+  return [...featuredItems, ...autoFiltered].slice(0, 3);
+}
+
+// 카테고리 렌더링 헬퍼 함수
+function renderCategory(containerId, listingsData) {
+  const container = qs(containerId);
+  if (!container) return;
+
+  if (listingsData.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full text-center py-12 text-slate-500">
+        <i class="fas fa-inbox text-4xl mb-3"></i>
+        <p>등록된 매물이 없습니다.</p>
+      </div>
+    `;
+    return;
   }
 
-  // 4. 화장품 공장
-  const cosmeticsContainer = qs("#category-cosmetics");
-  if (cosmeticsContainer) {
-    cosmeticsContainer.innerHTML = sampleData.cosmetics.slice(0, 3).map(createListingCard).join("");
-  }
-
-  // 5. 금속, 기계 및 부품 제조 공장
-  const metalContainer = qs("#category-metal");
-  if (metalContainer) {
-    metalContainer.innerHTML = sampleData.metal.slice(0, 3).map(createListingCard).join("");
-  }
-
-  // 6. 식품 공장
-  const foodContainer = qs("#category-food");
-  if (foodContainer) {
-    foodContainer.innerHTML = sampleData.food.slice(0, 3).map(createListingCard).join("");
-  }
+  container.innerHTML = listingsData.map(createListingCard).join("");
 }
 
 // 페이지 로드 시 매물 데이터 가져오기

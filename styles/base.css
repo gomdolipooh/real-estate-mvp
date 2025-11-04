@@ -827,3 +827,261 @@ main {
     font-size: 2rem;
   }
 }
+
+/* 쇼핑몰 스타일 이미지 슬라이더 */
+.image-slider {
+  width: 100%;
+}
+
+.slider-main {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--gray-100);
+  box-shadow: var(--shadow-lg);
+}
+
+.slider-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease;
+}
+
+/* 좌우 화살표 버튼 */
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--gray-800);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.slider-btn:hover {
+  background: white;
+  transform: translateY(-50%) scale(1.15);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.slider-btn:active {
+  transform: translateY(-50%) scale(1);
+}
+
+.slider-btn-prev {
+  left: 20px;
+}
+
+.slider-btn-next {
+  right: 20px;
+}
+
+/* 이미지 카운터 (우측 하단) */
+.slider-counter {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 25px;
+  font-size: 15px;
+  font-weight: 600;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* 도트 인디케이터 (중앙 하단) */
+.slider-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.dot:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: scale(1.2);
+}
+
+.dot.active {
+  background: white;
+  width: 32px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* 작은 썸네일 (하단) */
+.slider-thumbnails {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 8px 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-400) var(--gray-100);
+}
+
+.slider-thumbnails::-webkit-scrollbar {
+  height: 6px;
+}
+
+.slider-thumbnails::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: 3px;
+}
+
+.slider-thumbnails::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: 3px;
+}
+
+.slider-thumbnails::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+.thumbnail-btn {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border: 3px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.thumbnail-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbnail-btn:hover {
+  border-color: var(--primary-light);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.thumbnail-btn.active {
+  border-color: var(--primary);
+  box-shadow: 0 4px 15px rgba(30, 64, 175, 0.4);
+}
+
+/* 반응형 - 모바일 */
+@media (max-width: 768px) {
+  .slider-main {
+    height: 350px;
+  }
+
+  .slider-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 16px;
+  }
+
+  .slider-btn-prev {
+    left: 12px;
+  }
+
+  .slider-btn-next {
+    right: 12px;
+  }
+
+  .slider-counter {
+    bottom: 12px;
+    right: 12px;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .slider-dots {
+    bottom: 12px;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    gap: 8px;
+  }
+
+  .dot.active {
+    width: 28px;
+  }
+
+  .thumbnail-btn {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+/* 반응형 - 작은 모바일 */
+@media (max-width: 480px) {
+  .slider-main {
+    height: 280px;
+  }
+
+  .slider-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .slider-btn-prev {
+    left: 8px;
+  }
+
+  .slider-btn-next {
+    right: 8px;
+  }
+
+  .slider-counter {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .dot.active {
+    width: 24px;
+  }
+
+  .thumbnail-btn {
+    width: 60px;
+    height: 60px;
+  }
+}

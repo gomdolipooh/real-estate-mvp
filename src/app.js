@@ -1,14 +1,168 @@
 import { qs, qsa, setQuery } from "./utils.js";
 import { state, applyFilters } from "./filters.js";
 import { fmt } from "./utils.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+// Firebase 설정
+const firebaseConfig = {
+  apiKey: "AIzaSyCUOvPVhd1zgVOJq3a88MeE4Ew1QgB42xU",
+  authDomain: "vision-ac00e.firebaseapp.com",
+  projectId: "vision-ac00e",
+  storageBucket: "vision-ac00e.firebasestorage.app",
+  messagingSenderId: "973829787287",
+  appId: "1:973829787287:web:3ca6b7f51dceda8eb123d2",
+  measurementId: "G-71PFXDK6S4",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 let raw = [];
 
 async function load() {
-  const r = await fetch("/data/listings.json");
-  raw = await r.json();
-  bindUI();
-  render();
+  try {
+    console.log("🔥 Firebase에서 매물 로드 중...");
+
+    // 매물 데이터 로드 (인덱스 오류 방지)
+    const snap = await getDocs(collection(db, "listings"));
+
+    raw = snap.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+      .filter((item) => item.status === "published") // 게시된 매물만
+      .sort((a, b) => {
+        // createdAt으로 정렬
+        const aTime = a.createdAt?.seconds || 0;
+        const bTime = b.createdAt?.seconds || 0;
+        return bTime - aTime;
+      });
+
+    console.log(`✅ ${raw.length}개 매물 로드 완료`);
+
+    // 필터 옵션 로드 및 UI에 반영
+    await loadFilterOptions();
+
+    bindUI();
+    render();
+  } catch (error) {
+    console.error("❌ 매물 로드 실패:", error);
+
+    // 에러 메시지 표시
+    const gridEl = qs("#grid");
+    if (gridEl) {
+      gridEl.innerHTML = `
+        <div class="col-span-full text-center py-12">
+          <div class="text-red-600 mb-2">
+            <i class="fas fa-exclamation-triangle text-4xl"></i>
+          </div>
+          <p class="text-slate-700 font-semibold mb-2">데이터 로드 실패</p>
+          <p class="text-slate-500 text-sm">${error.message}</p>
+          <button 
+            onclick="location.reload()" 
+            class="mt-4 px-6 py-2 bg-navy-900 text-white rounded-lg hover:bg-navy-800 transition">
+            다시 시도
+          </button>
+        </div>
+      `;
+    }
+  }
+}
+
+// 필터 옵션 로드 및 select 업데이트
+async function loadFilterOptions() {
+  try {
+    console.log("📋 필터 옵션 로드 중...");
+
+    // 지역 옵션
+    const regionsDoc = await getDoc(doc(db, "filterOptions", "regions"));
+    const regions = regionsDoc.exists()
+      ? regionsDoc.data().options
+      : ["인천 남동구", "시흥시", "김포시"];
+
+    // 용도 옵션
+    const purposesDoc = await getDoc(doc(db, "filterOptions", "purposes"));
+    const purposes = purposesDoc.exists()
+      ? purposesDoc.data().options
+      : ["공장", "창고", "사무"];
+
+    // 거래유형 옵션
+    const dealTypesDoc = await getDoc(doc(db, "filterOptions", "dealTypes"));
+    const dealTypes = dealTypesDoc.exists()
+      ? dealTypesDoc.data().options
+      : ["분양", "매매", "전세", "월세"];
+
+    console.log("✅ 필터 옵션 로드 완료");
+
+    // select 요소 업데이트
+    updateSelectOptions("region", regions);
+    updateSelectOptions("purpose", purposes);
+
+    // 거래유형 탭 버튼 업데이트
+    updateDealTypeTabs(dealTypes);
+  } catch (error) {
+    console.error("⚠️ 필터 옵션 로드 실패, 기본값 사용:", error);
+  }
+}
+
+// select 옵션 업데이트
+function updateSelectOptions(selectId, options) {
+  const selectEl = qs(`#${selectId}`);
+  if (!selectEl) return;
+
+  const currentValue = selectEl.value;
+  const placeholder = selectEl.querySelector("option[value='']");
+
+  selectEl.innerHTML = "";
+  if (placeholder) {
+    selectEl.appendChild(placeholder.cloneNode(true));
+  }
+
+  options.forEach((opt) => {
+    const option = document.createElement("option");
+    option.value = opt;
+    option.textContent = opt;
+    selectEl.appendChild(option);
+  });
+
+  if (currentValue) {
+    selectEl.value = currentValue;
+  }
+}
+
+// 거래유형 탭 버튼 업데이트
+function updateDealTypeTabs(dealTypes) {
+  const tabContainer = document.querySelector("[data-deal]")?.parentElement;
+  if (!tabContainer) return;
+
+  // 기존 버튼들 저장 (전체 버튼 유지)
+  const allBtn = document.querySelector('[data-deal="전체"]');
+
+  // 컨테이너 초기화
+  tabContainer.innerHTML = "";
+
+  // 전체 버튼 추가
+  if (allBtn) {
+    tabContainer.appendChild(allBtn);
+  }
+
+  // 각 거래유형별 버튼 생성
+  dealTypes.forEach((dealType) => {
+    const btn = document.createElement("button");
+    btn.dataset.deal = dealType;
+    btn.className =
+      "px-8 py-3 bg-white text-slate-700 rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all whitespace-nowrap border border-slate-200";
+    btn.textContent = dealType;
+    tabContainer.appendChild(btn);
+  });
 }
 
 function bindUI() {
@@ -222,7 +376,7 @@ function render() {
           상세보기
         </a>
         <a 
-          href="tel:${it.contact.phone}" 
+          href="tel:0328125001" 
           class="py-2 px-3 border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors text-sm font-semibold"
           aria-label="전화 문의"
           title="전화 문의"
@@ -230,7 +384,7 @@ function render() {
           <i class="fas fa-phone"></i>
         </a>
         <a 
-          href="https://pf.kakao.com/${it.contact.kakao}" 
+          href="https://pf.kakao.com/_channelId" 
           target="_blank"
           class="py-2 px-3 border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors text-sm font-semibold"
           aria-label="카카오톡 문의"

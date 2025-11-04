@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Featured 데이터 테스트</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 p-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Featured 매물 데이터 확인</h1>
+    <div id="result" class="space-y-4"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCUOvPVhd1zgVOJq3a88MeE4Ew1QgB42xU",
+      authDomain: "vision-ac00e.firebaseapp.com",
+      projectId: "vision-ac00e",
+      storageBucket: "vision-ac00e.firebasestorage.app",
+      messagingSenderId: "973829787287",
+      appId: "1:973829787287:web:3ca6b7f51dceda8eb123d2",
+      measurementId: "G-71PFXDK6S4",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const resultDiv = document.getElementById("result");
+
+    async function test() {
+      try {
+        resultDiv.innerHTML = '<p class="text-blue-600">🔄 Firebase에서 데이터 로드 중...</p>';
+
+        const snap = await getDocs(collection(db, "listings"));
+
+        const listings = snap.docs
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }))
+          .filter(item => item.status === "published")
+          .sort((a, b) => {
+            const aTime = a.createdAt?.seconds || 0;
+            const bTime = b.createdAt?.seconds || 0;
+            return bTime - aTime;
+          });
+
+        console.log("전체 매물:", listings);
+
+        let html = `<p class="text-green-600 font-bold">✅ 총 ${listings.length}개 매물 로드 완료</p><hr class="my-4">`;
+
+        // Featured 매물만 필터링
+        const featuredListings = listings.filter(l => l.featured);
+
+        if (featuredListings.length === 0) {
+          html += '<p class="text-red-600 font-bold">❌ Featured 설정된 매물이 없습니다!</p>';
+          html += '<p class="text-sm text-slate-600 mt-2">관리자 페이지에서 ⭐ 버튼을 눌러 TOP3 설정을 해주세요.</p>';
+        } else {
+          html += `<p class="text-blue-600 font-bold mb-4">🌟 Featured 설정된 매물: ${featuredListings.length}개</p>`;
+          
+          featuredListings.forEach(listing => {
+            html += `
+              <div class="bg-white p-4 rounded-lg shadow mb-4">
+                <h3 class="font-bold text-lg mb-2">${listing.title}</h3>
+                <p class="text-sm text-slate-600 mb-2">${listing.region} · ${listing.sizePyeong || '-'}평</p>
+                <div class="bg-yellow-50 p-3 rounded">
+                  <p class="font-semibold text-sm mb-1">Featured 카테고리:</p>
+                  <pre class="text-xs bg-slate-800 text-green-400 p-2 rounded overflow-x-auto">${JSON.stringify(listing.featured, null, 2)}</pre>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        // 카테고리별 분류
+        const categories = {
+          small: "🏠 소형 평수",
+          medium: "🏭 중형 평수",
+          large: "🏢 대형 평수",
+          cosmetics: "💄 화장품 공장",
+          metal: "⚙️ 금속·기계·부품",
+          food: "🍔 식품 공장"
+        };
+
+        html += '<hr class="my-6"><h2 class="text-xl font-bold mb-4">카테고리별 Featured 매물</h2>';
+
+        Object.entries(categories).forEach(([key, label]) => {
+          const categoryListings = listings
+            .filter(l => l.featured && l.featured[key])
+            .sort((a, b) => a.featured[key] - b.featured[key]);
+
+          html += `
+            <div class="mb-4">
+              <h3 class="font-bold mb-2">${label}</h3>
+              ${categoryListings.length === 0 
+                ? '<p class="text-slate-500 text-sm ml-4">설정된 매물 없음</p>'
+                : `<ul class="ml-4 space-y-1">
+                    ${categoryListings.map(l => 
+                      `<li class="text-sm">
+                        <span class="inline-block w-8 text-center bg-blue-100 rounded px-2 py-1 mr-2">${l.featured[key]}위</span>
+                        ${l.title}
+                      </li>`
+                    ).join('')}
+                  </ul>`
+              }
+            </div>
+          `;
+        });
+
+        resultDiv.innerHTML = html;
+      } catch (error) {
+        console.error("에러:", error);
+        resultDiv.innerHTML = `<p class="text-red-600">❌ 오류: ${error.message}</p>`;
+      }
+    }
+
+    test();
+  </script>
+</body>
+</html>
+

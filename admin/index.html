@@ -5,122 +5,380 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>관리자 대시보드</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* 모달 스타일 */
+      .fixed {
+        position: fixed !important;
+      }
+      .inset-0 {
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+      .z-50 {
+        z-index: 50;
+      }
+      .flex {
+        display: flex !important;
+      }
+      .items-center {
+        align-items: center !important;
+      }
+      .justify-center {
+        justify-content: center !important;
+      }
+      .bg-black\/50 {
+        background-color: rgba(0, 0, 0, 0.5) !important;
+      }
+    </style>
   </head>
   <body class="bg-slate-50 text-slate-900">
-    <header class="sticky top-0 bg-white/80 backdrop-blur border-b">
+    <header class="sticky top-0 bg-white/80 backdrop-blur border-b z-50">
       <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
         <strong>관리자</strong>
-        <span class="text-sm text-slate-500">매물 등록/수정</span>
+        <span class="text-sm text-slate-500">매물 관리 시스템</span>
         <button
           id="logoutBtn"
-          class="ml-auto border rounded-lg px-3 py-1.5 text-sm"
+          class="ml-auto border rounded-lg px-3 py-1.5 text-sm hover:bg-slate-100 transition"
         >
           로그아웃
         </button>
       </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-6">
-      <section class="bg-white border rounded-2xl shadow p-5">
-        <h2 class="text-lg font-semibold mb-4">새 매물 등록</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm mb-1">제목</label>
-            <input
-              id="title"
-              class="w-full border rounded-lg px-3 py-2"
-              placeholder="예: 남동공단 공장 임대"
-            />
-          </div>
-          <div>
-            <label class="block text-sm mb-1">거래유형</label>
-            <select id="dealType" class="w-full border rounded-lg px-3 py-2">
-              <option>분양</option>
-              <option>매매</option>
-              <option>전세</option>
-              <option selected>월세</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm mb-1">매매가(만원)</label>
-            <input
-              id="price"
-              type="number"
-              class="w-full border rounded-lg px-3 py-2"
-              placeholder="없으면 비움"
-            />
-          </div>
-          <div>
-            <label class="block text-sm mb-1">보증금(만원)</label>
-            <input
-              id="deposit"
-              type="number"
-              class="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-          <div>
-            <label class="block text-sm mb-1">월세(만원)</label>
-            <input
-              id="rent"
-              type="number"
-              class="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-          <div>
-            <label class="block text-sm mb-1">면적(평)</label>
-            <input
-              id="sizePyeong"
-              type="number"
-              class="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-          <div>
-            <label class="block text-sm mb-1">층</label>
-            <input
-              id="floor"
-              class="w-full border rounded-lg px-3 py-2"
-              placeholder="예: 1/2"
-            />
-          </div>
-          <div>
-            <label class="block text-sm mb-1">용도</label>
-            <select id="purpose" class="w-full border rounded-lg px-3 py-2">
-              <option>공장</option>
-              <option>창고</option>
-              <option>사무</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm mb-1">지역</label>
-            <input
-              id="region"
-              class="w-full border rounded-lg px-3 py-2"
-              placeholder="인천 남동구 ..."
-            />
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <label class="block text-sm mb-2">이미지 (여러 장 선택 가능)</label>
-          <input id="images" type="file" multiple accept="image/*" />
-          <div id="progress" class="text-sm text-slate-600 mt-2"></div>
-        </div>
-
-        <div class="mt-5 flex gap-2">
+    <!-- 탭 네비게이션 -->
+    <div class="bg-white border-b sticky top-[57px] z-40">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex gap-2 overflow-x-auto py-2">
           <button
-            id="saveBtn"
-            class="bg-slate-900 text-white rounded-lg px-4 py-2"
+            data-tab="register"
+            class="tab-btn px-6 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap bg-slate-900 text-white"
           >
-            저장
+            <i class="fas fa-plus-circle mr-2"></i>매물 등록
           </button>
-          <span id="saveMsg" class="text-sm text-emerald-600"></span>
+          <button
+            data-tab="manage"
+            class="tab-btn px-6 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap bg-slate-200 text-slate-700 hover:bg-slate-300"
+          >
+            <i class="fas fa-list mr-2"></i>매물 관리
+          </button>
+          <button
+            data-tab="filters"
+            class="tab-btn px-6 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap bg-slate-200 text-slate-700 hover:bg-slate-300"
+          >
+            <i class="fas fa-filter mr-2"></i>필터 옵션 관리
+          </button>
+          <button
+            data-tab="inquiries"
+            class="tab-btn px-6 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap bg-slate-200 text-slate-700 hover:bg-slate-300"
+          >
+            <i class="fas fa-envelope mr-2"></i>의뢰 내역
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+      <!-- 탭 1: 매물 등록 -->
+      <section id="tab-register" class="tab-content">
+        <div class="bg-white border rounded-2xl shadow p-5">
+          <h2 class="text-lg font-semibold mb-4">
+            <span id="formTitle">새 매물 등록</span>
+          </h2>
+          <input type="hidden" id="editId" value="" />
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm mb-1">제목 *</label>
+              <input
+                id="title"
+                class="w-full border rounded-lg px-3 py-2"
+                placeholder="예: 남동공단 공장 임대"
+              />
+            </div>
+            <div>
+              <label class="block text-sm mb-1">거래유형 *</label>
+              <select id="dealType" class="w-full border rounded-lg px-3 py-2">
+                <option>분양</option>
+                <option>매매</option>
+                <option>전세</option>
+                <option selected>월세</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm mb-1">매매가(만원)</label>
+              <input
+                id="price"
+                type="number"
+                class="w-full border rounded-lg px-3 py-2"
+                placeholder="없으면 비움"
+              />
+            </div>
+            <div>
+              <label class="block text-sm mb-1">보증금(만원)</label>
+              <input
+                id="deposit"
+                type="number"
+                class="w-full border rounded-lg px-3 py-2"
+              />
+            </div>
+            <div>
+              <label class="block text-sm mb-1">월세(만원)</label>
+              <input
+                id="rent"
+                type="number"
+                class="w-full border rounded-lg px-3 py-2"
+              />
+            </div>
+            <div>
+              <label class="block text-sm mb-1">면적(평)</label>
+              <input
+                id="sizePyeong"
+                type="number"
+                class="w-full border rounded-lg px-3 py-2"
+              />
+            </div>
+            <div>
+              <label class="block text-sm mb-1">층</label>
+              <input
+                id="floor"
+                class="w-full border rounded-lg px-3 py-2"
+                placeholder="예: 1/2"
+              />
+            </div>
+            <div>
+              <label class="block text-sm mb-1">용도</label>
+              <select id="purpose" class="w-full border rounded-lg px-3 py-2">
+                <option value="">선택</option>
+                <option>공장</option>
+                <option>창고</option>
+                <option>사무</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm mb-1">지역</label>
+              <select id="region" class="w-full border rounded-lg px-3 py-2">
+                <option value="">선택</option>
+                <option>인천 남동구</option>
+                <option>시흥시</option>
+                <option>김포시</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-sm mb-2">상세 설명</label>
+            <textarea
+              id="description"
+              rows="4"
+              class="w-full border rounded-lg px-3 py-2"
+              placeholder="매물에 대한 상세 설명을 입력하세요"
+            ></textarea>
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-sm mb-2">이미지 (여러 장 선택 가능)</label>
+            <input id="images" type="file" multiple accept="image/*" />
+            <div id="progress" class="text-sm text-slate-600 mt-2"></div>
+            <div id="existingImages" class="mt-3 flex gap-2 flex-wrap"></div>
+          </div>
+
+          <div class="mt-5 flex gap-2 items-center">
+            <button
+              id="saveBtn"
+              class="bg-slate-900 text-white rounded-lg px-4 py-2 hover:bg-slate-800 transition"
+            >
+              저장
+            </button>
+            <button
+              id="cancelEditBtn"
+              class="hidden bg-slate-200 text-slate-700 rounded-lg px-4 py-2 hover:bg-slate-300 transition"
+            >
+              취소
+            </button>
+            <span id="saveMsg" class="text-sm text-emerald-600"></span>
+          </div>
         </div>
       </section>
 
-      <section class="mt-8">
-        <h3 class="font-semibold mb-2">최근 등록 매물</h3>
-        <div id="recent" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+      <!-- 탭 2: 매물 관리 -->
+      <section id="tab-manage" class="tab-content hidden">
+        <div class="bg-white border rounded-2xl shadow p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold">전체 매물 목록</h2>
+            <button
+              id="refreshListings"
+              class="px-4 py-2 bg-slate-200 rounded-lg hover:bg-slate-300 transition text-sm"
+            >
+              <i class="fas fa-sync-alt mr-2"></i>새로고침
+            </button>
+          </div>
+
+          <div class="mb-4 flex gap-2">
+            <input
+              id="searchListings"
+              type="text"
+              placeholder="제목, 지역으로 검색..."
+              class="flex-1 border rounded-lg px-3 py-2"
+            />
+            <select id="filterStatus" class="border rounded-lg px-3 py-2">
+              <option value="">전체 상태</option>
+              <option value="published">게시됨</option>
+              <option value="draft">임시저장</option>
+            </select>
+          </div>
+
+          <div id="listingsTable" class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-100 border-b">
+                <tr>
+                  <th class="px-3 py-3 text-left">썸네일</th>
+                  <th class="px-3 py-3 text-left">제목</th>
+                  <th class="px-3 py-3 text-left">거래유형</th>
+                  <th class="px-3 py-3 text-left">가격</th>
+                  <th class="px-3 py-3 text-left">지역</th>
+                  <th class="px-3 py-3 text-left">평수</th>
+                  <th class="px-3 py-3 text-left">상태</th>
+                  <th class="px-3 py-3 text-center">작업</th>
+                </tr>
+              </thead>
+              <tbody id="listingsBody"></tbody>
+            </table>
+          </div>
+
+          <div id="loadingListings" class="text-center py-8 text-slate-500">
+            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+            <p>로딩 중...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탭 3: 필터 옵션 관리 -->
+      <section id="tab-filters" class="tab-content hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- 지역 관리 -->
+          <div class="bg-white border rounded-2xl shadow p-5">
+            <h2 class="text-lg font-semibold mb-4">
+              <i class="fas fa-map-marker-alt mr-2"></i>지역 옵션
+            </h2>
+            <div class="flex gap-2 mb-3">
+              <input
+                id="newRegion"
+                class="flex-1 border rounded-lg px-3 py-2"
+                placeholder="새 지역 입력"
+              />
+              <button
+                id="addRegion"
+                class="bg-slate-900 text-white rounded-lg px-4 py-2 hover:bg-slate-800 transition"
+              >
+                추가
+              </button>
+            </div>
+            <ul id="regionList" class="space-y-2"></ul>
+          </div>
+
+          <!-- 용도 관리 -->
+          <div class="bg-white border rounded-2xl shadow p-5">
+            <h2 class="text-lg font-semibold mb-4">
+              <i class="fas fa-building mr-2"></i>용도 옵션
+            </h2>
+            <div class="flex gap-2 mb-3">
+              <input
+                id="newPurpose"
+                class="flex-1 border rounded-lg px-3 py-2"
+                placeholder="새 용도 입력"
+              />
+              <button
+                id="addPurpose"
+                class="bg-slate-900 text-white rounded-lg px-4 py-2 hover:bg-slate-800 transition"
+              >
+                추가
+              </button>
+            </div>
+            <ul id="purposeList" class="space-y-2"></ul>
+          </div>
+
+          <!-- 거래유형 관리 -->
+          <div class="bg-white border rounded-2xl shadow p-5">
+            <h2 class="text-lg font-semibold mb-4">
+              <i class="fas fa-handshake mr-2"></i>거래유형 옵션
+            </h2>
+            <div class="flex gap-2 mb-3">
+              <input
+                id="newDealType"
+                class="flex-1 border rounded-lg px-3 py-2"
+                placeholder="새 거래유형 입력"
+              />
+              <button
+                id="addDealType"
+                class="bg-slate-900 text-white rounded-lg px-4 py-2 hover:bg-slate-800 transition"
+              >
+                추가
+              </button>
+            </div>
+            <ul id="dealTypeList" class="space-y-2"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탭 4: 의뢰 내역 -->
+      <section id="tab-inquiries" class="tab-content hidden">
+        <div class="bg-white border rounded-2xl shadow p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold">의뢰 내역</h2>
+            <button
+              id="refreshInquiries"
+              class="px-4 py-2 bg-slate-200 rounded-lg hover:bg-slate-300 transition text-sm"
+            >
+              <i class="fas fa-sync-alt mr-2"></i>새로고침
+            </button>
+          </div>
+
+          <div class="mb-4 flex gap-2">
+            <select id="filterInquiryType" class="border rounded-lg px-3 py-2">
+              <option value="">전체 타입</option>
+              <option value="buy">매수 의뢰</option>
+              <option value="sell">매도 의뢰</option>
+            </select>
+            <select
+              id="filterInquiryStatus"
+              class="border rounded-lg px-3 py-2"
+            >
+              <option value="">전체 상태</option>
+              <option value="pending">대기중</option>
+              <option value="contacted">연락완료</option>
+              <option value="completed">처리완료</option>
+            </select>
+          </div>
+
+          <div id="inquiriesTable" class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-100 border-b">
+                <tr>
+                  <th class="px-3 py-3 text-left">접수일</th>
+                  <th class="px-3 py-3 text-left">타입</th>
+                  <th class="px-3 py-3 text-left">이름</th>
+                  <th class="px-3 py-3 text-left">연락처</th>
+                  <th class="px-3 py-3 text-left">지역</th>
+                  <th class="px-3 py-3 text-left">조건</th>
+                  <th class="px-3 py-3 text-left">상태</th>
+                  <th class="px-3 py-3 text-center">작업</th>
+                </tr>
+              </thead>
+              <tbody id="inquiriesBody"></tbody>
+            </table>
+          </div>
+
+          <div id="loadingInquiries" class="text-center py-8 text-slate-500">
+            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+            <p>로딩 중...</p>
+          </div>
+        </div>
       </section>
     </main>
 

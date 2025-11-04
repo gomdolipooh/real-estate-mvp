@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>의뢰하기 - 비전부동산</title>
+    <meta name="description" content="공장·창고 매물 매수·매도 의뢰" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: { 900: "#0b1b34" },
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between h-20">
+          <a href="index.html" class="text-2xl font-black text-navy-900 hover:opacity-80 transition-opacity">
+            비전부동산
+          </a>
+          <nav class="hidden lg:flex items-center space-x-1">
+            <a href="listings.html" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 hover:text-navy-900 rounded-xl transition-all">
+              전체매물
+            </a>
+            <a href="request.html" class="px-4 py-2 text-sm font-semibold text-navy-900 bg-slate-200 rounded-xl transition-all">
+              의뢰하기
+            </a>
+            <a href="index.html#section-about" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 hover:text-navy-900 rounded-xl transition-all">
+              회사소개
+            </a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-12">
+      <!-- 페이지 헤더 -->
+      <div class="text-center mb-10">
+        <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4">
+          의뢰하기
+        </h1>
+        <p class="text-lg text-slate-600">
+          매물을 찾으시거나 매도하실 때 전문가에게 맡겨주세요
+        </p>
+      </div>
+
+      <!-- 매수/매도 탭 버튼 -->
+      <div class="flex gap-4 mb-8 bg-white rounded-2xl shadow-md p-2">
+        <button
+          id="btnBuy"
+          class="flex-1 py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
+        >
+          <i class="fas fa-search mr-2"></i>매물 매수 (찾아주세요)
+        </button>
+        <button
+          id="btnSell"
+          class="flex-1 py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 bg-slate-100 text-slate-600 hover:bg-slate-200"
+        >
+          <i class="fas fa-hand-holding-usd mr-2"></i>매물 매도 (팔아주세요)
+        </button>
+      </div>
+
+      <!-- 안내 박스 -->
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-600 rounded-xl p-6 mb-8 shadow-sm">
+        <h3 class="font-bold text-lg text-slate-900 mb-3 flex items-center gap-2">
+          <i class="fas fa-info-circle text-blue-600"></i>
+          <span id="infoTitle">매물 매수 의뢰 안내</span>
+        </h3>
+        <ul class="space-y-2 text-slate-700">
+          <li class="flex items-start gap-2">
+            <i class="fas fa-check text-emerald-600 mt-1"></i>
+            <span id="info1">정확한 정보를 바탕으로 자세한 상담을 도와드리기 위한 페이지입니다.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <i class="fas fa-check text-emerald-600 mt-1"></i>
+            <span id="info2">온라인에 공개하지 못하는 매물이 훨씬 더 많습니다.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <i class="fas fa-check text-emerald-600 mt-1"></i>
+            <span id="info3">접수하신 내용을 바탕으로 최적의 매물을 고객님께 안내해 드립니다.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <i class="fas fa-check text-emerald-600 mt-1"></i>
+            <span id="info4">힘들게 찾아다니지 마세요. 맡기고 기다리시면 됩니다.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <i class="fas fa-check text-emerald-600 mt-1"></i>
+            <span id="info5">문의주셔서 감사합니다.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 폼 컨테이너 -->
+      <div class="bg-white rounded-2xl shadow-xl p-8">
+        <form id="requestForm">
+          <!-- 공통: 의뢰인 기본정보 -->
+          <div class="mb-10 pb-8 border-b border-slate-200">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+              <i class="fas fa-user-circle text-blue-600"></i>
+              의뢰인 기본정보
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                  이름 또는 별명
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  placeholder="이름 또는 별명을 입력해주세요"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                  휴대폰 또는 전화번호 <span class="text-red-600">*</span>
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="010-1234-5678"
+                  required
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- 공통: 산업단지 선택 -->
+          <div class="mb-10 pb-8 border-b border-slate-200">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+              <i class="fas fa-map-marked-alt text-blue-600"></i>
+              산업단지 선택
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <label class="relative flex items-center gap-3 p-4 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                <input type="checkbox" name="complex" value="시화공단" class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500" />
+                <span class="font-medium text-slate-700 group-hover:text-blue-700">시화공단</span>
+              </label>
+              <label class="relative flex items-center gap-3 p-4 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                <input type="checkbox" name="complex" value="반월공단" class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500" />
+                <span class="font-medium text-slate-700 group-hover:text-blue-700">반월공단</span>
+              </label>
+              <label class="relative flex items-center gap-3 p-4 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                <input type="checkbox" name="complex" value="남동공단" class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500" />
+                <span class="font-medium text-slate-700 group-hover:text-blue-700">남동공단</span>
+              </label>
+              <label class="relative flex items-center gap-3 p-4 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                <input type="checkbox" name="complex" value="시화MTV" class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500" />
+                <span class="font-medium text-slate-700 group-hover:text-blue-700">시화MTV</span>
+              </label>
+              <label class="relative flex items-center gap-3 p-4 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                <input type="checkbox" name="complex" value="화성지역" class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500" />
+                <span class="font-medium text-slate-700 group-hover:text-blue-700">화성지역</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 매수 전용 폼 -->
+          <div id="buyForm" class="buy-form">
+            <div class="mb-10 pb-8 border-b border-slate-200">
+              <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <i class="fas fa-building text-blue-600"></i>
+                찾으시는 매물의 조건
+              </h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    물건종류선택
+                  </label>
+                  <select id="buyPropertyType" name="propertyType" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    <option value="">선택해주세요</option>
+                    <option value="공장">공장</option>
+                    <option value="창고">창고</option>
+                    <option value="사무">사무</option>
+                    <option value="기타">기타</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    거래종류선택
+                  </label>
+                  <select id="buyDealType" name="dealType" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    <option value="">선택해주세요</option>
+                    <option value="매매">매매</option>
+                    <option value="전세">전세</option>
+                    <option value="월세">월세</option>
+                    <option value="분양">분양</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    원하시는 평수
+                  </label>
+                  <input
+                    type="number"
+                    id="buyDesiredPyeong"
+                    name="desiredPyeong"
+                    placeholder="예: 100평"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    희망거래가
+                  </label>
+                  <select id="buyDesiredPrice" name="desiredPrice" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    <option value="">선택해주세요</option>
+                    <option value="5000만원 이하">5000만원 이하</option>
+                    <option value="5000만원 - 1억원">5000만원 - 1억원</option>
+                    <option value="1억원 - 2억원">1억원 - 2억원</option>
+                    <option value="2억원 - 3억원">2억원 - 3억원</option>
+                    <option value="3억원 - 5억원">3억원 - 5억원</option>
+                    <option value="5억원 이상">5억원 이상</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-10 pb-8 border-b border-slate-200">
+              <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <i class="fas fa-comment-dots text-blue-600"></i>
+                전하실 말씀
+              </h2>
+              <textarea
+                id="buyMessage"
+                name="message"
+                rows="6"
+                placeholder="원하시는 매물의 상세 조건을 입력해주세요...&#10;예) 남동공단 인근 100평대 공장, 주차 가능, 전력 충분"
+                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition resize-none"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- 매도 전용 폼 -->
+          <div id="sellForm" class="sell-form hidden">
+            <div class="mb-10 pb-8 border-b border-slate-200">
+              <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <i class="fas fa-warehouse text-emerald-600"></i>
+                매물 기본정보
+              </h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    물건종류선택
+                  </label>
+                  <select id="sellPropertyType" name="propertyType" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition">
+                    <option value="">선택해주세요</option>
+                    <option value="공장">공장</option>
+                    <option value="창고">창고</option>
+                    <option value="사무">사무</option>
+                    <option value="기타">기타</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    거래종류선택
+                  </label>
+                  <select id="sellDealType" name="dealType" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition">
+                    <option value="">선택해주세요</option>
+                    <option value="매매">매매</option>
+                    <option value="전세">전세</option>
+                    <option value="월세">월세</option>
+                    <option value="분양">분양</option>
+                  </select>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    매물 주소 <span class="text-red-600">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="sellAddress"
+                    name="address"
+                    placeholder="예: 인천 남동구 정왕동 1215-15 또는 만해로 41"
+                    required
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    매물 평수
+                  </label>
+                  <input
+                    type="number"
+                    id="sellPyeong"
+                    name="pyeong"
+                    placeholder="예: 150평"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    희망거래가
+                  </label>
+                  <input
+                    type="text"
+                    id="sellPrice"
+                    name="price"
+                    placeholder="예: 2억원 또는 협의"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-10 pb-8 border-b border-slate-200">
+              <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <i class="fas fa-comment-dots text-emerald-600"></i>
+                전하실 말씀
+              </h2>
+              <textarea
+                id="sellMessage"
+                name="message"
+                rows="6"
+                placeholder="매물에 대한 상세 정보를 입력해주세요...&#10;예) 층수, 전력 용량, 주차 공간, 특이사항 등"
+                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition resize-none"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- 제출 버튼 -->
+          <div class="text-center">
+            <button
+              type="submit"
+              class="inline-flex items-center gap-3 px-12 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              <i class="fas fa-paper-plane"></i>
+              <span id="submitText">의뢰하기</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-16">
+      <div class="max-w-7xl mx-auto px-4 py-8 text-center">
+        <p class="text-slate-500 text-sm">
+          © 2025 비전부동산 (남동비전 공인중개사사무소). All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/request.js"></script>
+  </body>
+</html>
+

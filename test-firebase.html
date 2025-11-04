@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase 연결 테스트</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 p-8">
+  <div class="max-w-2xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Firebase 연결 테스트</h1>
+    <div id="status" class="bg-white rounded-lg shadow p-6 mb-4">
+      <p class="text-slate-600">테스트 중...</p>
+    </div>
+    <div id="logs" class="bg-slate-900 text-green-400 rounded-lg p-4 font-mono text-sm max-h-96 overflow-y-auto"></div>
+    <div class="mt-4">
+      <button id="testWrite" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mr-2">
+        Firestore 쓰기 테스트
+      </button>
+      <button id="testRead" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+        Firestore 읽기 테스트
+      </button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      serverTimestamp,
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import {
+      getStorage,
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCUOvPVhd1zgVOJq3a88MeE4Ew1QgB42xU",
+      authDomain: "vision-ac00e.firebaseapp.com",
+      projectId: "vision-ac00e",
+      storageBucket: "vision-ac00e.firebasestorage.app",
+      messagingSenderId: "973829787287",
+      appId: "1:973829787287:web:3ca6b7f51dceda8eb123d2",
+      measurementId: "G-71PFXDK6S4",
+    };
+
+    const statusEl = document.getElementById("status");
+    const logsEl = document.getElementById("logs");
+
+    function log(message, type = "info") {
+      console.log(message);
+      const color = type === "error" ? "text-red-400" : type === "success" ? "text-green-400" : "text-blue-400";
+      logsEl.innerHTML += `<div class="${color}">${new Date().toLocaleTimeString()} - ${message}</div>`;
+      logsEl.scrollTop = logsEl.scrollHeight;
+    }
+
+    try {
+      log("Firebase 초기화 시작...");
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const storage = getStorage(app);
+
+      log("✅ Firebase 초기화 성공!", "success");
+      log(`📦 Project ID: ${app.options.projectId}`);
+      log(`💾 Storage Bucket: ${storage.app.options.storageBucket}`);
+
+      statusEl.innerHTML = `
+        <div class="text-green-600 font-semibold mb-2">✅ Firebase 연결 성공!</div>
+        <div class="text-sm text-slate-600">
+          <p>프로젝트: ${app.options.projectId}</p>
+          <p>버킷: ${storage.app.options.storageBucket}</p>
+        </div>
+      `;
+
+      // 쓰기 테스트
+      document.getElementById("testWrite").onclick = async () => {
+        try {
+          log("Firestore 쓰기 테스트 시작...");
+          const testData = {
+            test: true,
+            message: "Firebase 연결 테스트",
+            timestamp: serverTimestamp(),
+          };
+          const docRef = await addDoc(collection(db, "test"), testData);
+          log(`✅ 쓰기 성공! 문서 ID: ${docRef.id}`, "success");
+        } catch (error) {
+          log(`❌ 쓰기 실패: ${error.message}`, "error");
+          log(`에러 코드: ${error.code}`, "error");
+        }
+      };
+
+      // 읽기 테스트
+      document.getElementById("testRead").onclick = async () => {
+        try {
+          log("Firestore 읽기 테스트 시작...");
+          const querySnapshot = await getDocs(collection(db, "test"));
+          log(`✅ 읽기 성공! ${querySnapshot.size}개 문서 발견`, "success");
+          querySnapshot.forEach((doc) => {
+            log(`  - 문서 ID: ${doc.id}`);
+          });
+        } catch (error) {
+          log(`❌ 읽기 실패: ${error.message}`, "error");
+          log(`에러 코드: ${error.code}`, "error");
+        }
+      };
+
+    } catch (error) {
+      log(`❌ Firebase 초기화 실패: ${error.message}`, "error");
+      statusEl.innerHTML = `
+        <div class="text-red-600 font-semibold mb-2">❌ Firebase 연결 실패</div>
+        <div class="text-sm text-slate-600">
+          <p>${error.message}</p>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
+
