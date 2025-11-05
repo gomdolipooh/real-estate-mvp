@@ -21,6 +21,41 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// 최근 본 매물 관리
+const RECENT_LISTINGS_KEY = "recentListings";
+const MAX_RECENT_ITEMS = 10;
+
+function saveRecentListing(listing) {
+  try {
+    let recent = JSON.parse(localStorage.getItem(RECENT_LISTINGS_KEY) || "[]");
+    
+    // 이미 존재하는 항목 제거 (중복 방지)
+    recent = recent.filter(item => item.id !== listing.id);
+    
+    // 맨 앞에 추가
+    recent.unshift({
+      id: listing.id,
+      title: listing.title,
+      dealType: listing.dealType,
+      price: listing.price,
+      deposit: listing.deposit,
+      rent: listing.rent,
+      region: listing.region,
+      sizePyeong: listing.sizePyeong,
+      floor: listing.floor,
+      images: listing.images,
+      timestamp: Date.now()
+    });
+    
+    // 최대 개수 제한
+    recent = recent.slice(0, MAX_RECENT_ITEMS);
+    
+    localStorage.setItem(RECENT_LISTINGS_KEY, JSON.stringify(recent));
+  } catch (error) {
+    console.error("최근 본 매물 저장 실패:", error);
+  }
+}
+
 async function load() {
   const { id } = getQuery();
   
@@ -46,6 +81,9 @@ async function load() {
     };
 
     console.log("✅ 매물 상세 로드 완료");
+
+    // 최근 본 매물에 저장
+    saveRecentListing(it);
 
     document.title = `${it.title} — 비전부동산`;
 

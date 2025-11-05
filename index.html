@@ -68,6 +68,33 @@
 
           <!-- Search & Mobile Menu Button -->
           <div class="flex items-center gap-3">
+            <!-- 로그인/회원가입 버튼 -->
+            <div id="authButtons" class="hidden lg:flex items-center gap-2">
+              <button
+                id="loginBtn"
+                class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition-all"
+              >
+                로그인
+              </button>
+              <button
+                id="signupBtn"
+                class="px-4 py-2 text-sm font-semibold bg-navy-900 text-white hover:bg-navy-800 rounded-xl transition-all"
+              >
+                회원가입
+              </button>
+            </div>
+
+            <!-- 로그인 후 표시 -->
+            <div id="userInfo" class="hidden lg:flex items-center gap-3">
+              <span class="text-sm text-slate-700" id="userEmail"></span>
+              <button
+                id="logoutBtn"
+                class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition-all"
+              >
+                로그아웃
+              </button>
+            </div>
+
             <!-- Desktop Search Form -->
             <form id="searchForm" class="hidden md:flex items-center gap-2">
               <label for="q" class="sr-only">매물 검색</label>
@@ -151,6 +178,35 @@
               </button>
             </div>
           </form>
+
+          <!-- Mobile 로그인/회원가입 -->
+          <div id="mobileAuthButtons" class="pt-2 space-y-2">
+            <button
+              id="mobileLoginBtn"
+              class="block w-full px-4 py-3 text-base font-semibold text-slate-700 hover:bg-slate-200 rounded-xl transition-colors"
+            >
+              로그인
+            </button>
+            <button
+              id="mobileSignupBtn"
+              class="block w-full px-4 py-3 text-base font-semibold bg-navy-900 text-white hover:bg-navy-800 rounded-xl transition-colors"
+            >
+              회원가입
+            </button>
+          </div>
+
+          <!-- Mobile 로그인 후 표시 -->
+          <div id="mobileUserInfo" class="hidden pt-2 space-y-2">
+            <div class="px-4 py-3 bg-slate-100 rounded-xl">
+              <span class="text-sm text-slate-700" id="mobileUserEmail"></span>
+            </div>
+            <button
+              id="mobileLogoutBtn"
+              class="block w-full px-4 py-3 text-base font-semibold text-slate-700 hover:bg-slate-200 rounded-xl transition-colors"
+            >
+              로그아웃
+            </button>
+          </div>
         </nav>
       </div>
     </header>
@@ -425,34 +481,89 @@
           </p>
         </div>
 
-        <!-- 카테고리 1: 소형 평수 -->
-        <div class="mb-20">
-          <div class="flex items-center justify-between mb-8">
-            <div>
-              <h3
-                class="text-2xl md:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3"
-              >
-                <span
-                  class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white text-xl"
-                >
-                  <i class="fas fa-home"></i>
-                </span>
-                소형 평수 (100평 미만)
-              </h3>
-              <p class="text-slate-600">소규모 사업에 최적화된 공간</p>
-            </div>
-            <a
-              href="listings.html?maxSize=100"
-              class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+        <!-- 섹션 1: 평수별 카테고리 -->
+        <div class="mb-20 pb-20 border-b-4 border-slate-300">
+          <h3 class="text-3xl font-bold text-slate-900 mb-8 text-center">평수별 추천 매물</h3>
+          
+          <!-- 평수별 탭 버튼 -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+            <!-- 소형 평수 탭 -->
+            <button 
+              data-size-tab="small" 
+              class="size-tab-btn active group bg-white rounded-2xl border-4 border-blue-500 shadow-lg hover:shadow-xl transition-all duration-300 p-6 text-left"
             >
-              <span>전체보기</span>
-              <i class="fas fa-arrow-right"></i>
-            </a>
+              <div class="flex items-center gap-4 mb-3">
+                <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white text-2xl flex-shrink-0">
+                  <i class="fas fa-home"></i>
+                </div>
+                <div>
+                  <h4 class="text-xl font-bold text-slate-900 mb-1">소형 평수</h4>
+                  <p class="text-sm text-slate-600">100평 미만</p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600">소규모 사업에 최적화된 공간</p>
+            </button>
+
+            <!-- 중형 평수 탭 -->
+            <button 
+              data-size-tab="medium" 
+              class="size-tab-btn group bg-white rounded-2xl border-4 border-slate-200 hover:border-purple-500 shadow-md hover:shadow-xl transition-all duration-300 p-6 text-left"
+            >
+              <div class="flex items-center gap-4 mb-3">
+                <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-2xl flex-shrink-0">
+                  <i class="fas fa-warehouse"></i>
+                </div>
+                <div>
+                  <h4 class="text-xl font-bold text-slate-900 mb-1">중형 평수</h4>
+                  <p class="text-sm text-slate-600">100평 ~ 300평</p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600">중소기업 규모에 적합한 공간</p>
+            </button>
+
+            <!-- 대형 평수 탭 -->
+            <button 
+              data-size-tab="large" 
+              class="size-tab-btn group bg-white rounded-2xl border-4 border-slate-200 hover:border-emerald-500 shadow-md hover:shadow-xl transition-all duration-300 p-6 text-left"
+            >
+              <div class="flex items-center gap-4 mb-3">
+                <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center text-white text-2xl flex-shrink-0">
+                  <i class="fas fa-industry"></i>
+                </div>
+                <div>
+                  <h4 class="text-xl font-bold text-slate-900 mb-1">대형 평수</h4>
+                  <p class="text-sm text-slate-600">300평 ~ 500평</p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600">대규모 생산 시설에 최적화</p>
+            </button>
           </div>
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            id="category-small"
-          >
+
+          <!-- 평수별 매물 표시 영역 -->
+          <div id="size-listings-container" class="relative">
+            <!-- 카테고리 헤더 (동적으로 변경됨) -->
+            <div class="mb-6 p-6 rounded-2xl border-4 bg-gradient-to-r from-blue-50 to-blue-100 border-blue-500" id="size-category-header">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white text-xl flex-shrink-0">
+                    <i class="fas fa-home"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-2xl font-bold text-slate-900 mb-1">소형 평수 TOP 3</h4>
+                    <p class="text-sm text-slate-700">100평 미만 | 소규모 사업에 최적화된 공간</p>
+                  </div>
+                </div>
+                <a href="listings.html?maxSize=100" class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-semibold text-sm">
+                  <span>전체보기</span>
+                  <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              id="category-small"
+            >
             <!-- 샘플 카드 1 -->
             <article
               class="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
@@ -627,205 +738,117 @@
               </div>
             </article>
           </div>
-          <a
-            href="listings.html?maxSize=100"
-            class="md:hidden mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
-          >
-            <span>전체보기</span>
-            <i class="fas fa-arrow-right"></i>
-          </a>
-        </div>
-
-        <!-- 카테고리 2: 100평 ~ 300평 -->
-        <div class="mb-20">
-          <div class="flex items-center justify-between mb-8">
-            <div>
-              <h3
-                class="text-2xl md:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3"
-              >
-                <span
-                  class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-xl"
-                >
-                  <i class="fas fa-warehouse"></i>
-                </span>
-                중형 평수 (100평 ~ 300평)
-              </h3>
-              <p class="text-slate-600">중소기업 규모에 적합한 공간</p>
-            </div>
-            <a
-              href="listings.html?minSize=100&maxSize=300"
-              class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
-            >
-              <span>전체보기</span>
-              <i class="fas fa-arrow-right"></i>
-            </a>
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"
+              id="category-medium"
+            ></div>
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"
+              id="category-large"
+            ></div>
           </div>
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            id="category-medium"
-          ></div>
-          <a
-            href="listings.html?minSize=100&maxSize=300"
-            class="md:hidden mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
-          >
-            <span>전체보기</span>
-            <i class="fas fa-arrow-right"></i>
-          </a>
         </div>
 
-        <!-- 카테고리 3: 300평 ~ 500평 -->
-        <div class="mb-20">
-          <div class="flex items-center justify-between mb-8">
-            <div>
-              <h3
-                class="text-2xl md:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3"
-              >
-                <span
-                  class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center text-white text-xl"
-                >
-                  <i class="fas fa-industry"></i>
-                </span>
-                대형 평수 (300평 ~ 500평)
-              </h3>
-              <p class="text-slate-600">대규모 생산 시설에 최적화</p>
-            </div>
-            <a
-              href="listings.html?minSize=300&maxSize=500"
-              class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+        <!-- 섹션 2: 업종별 카테고리 -->
+        <div class="mb-20 pt-20 px-8 py-12 bg-gradient-to-br from-slate-100 to-blue-50 rounded-3xl">
+          <h3 class="text-3xl font-bold text-slate-900 mb-8 text-center">업종별 추천 매물</h3>
+          
+          <!-- 업종별 탭 버튼 -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+            <!-- 화장품 공장 탭 -->
+            <button 
+              data-industry-tab="cosmetics" 
+              class="industry-tab-btn active group bg-white rounded-2xl border-4 border-pink-500 shadow-lg hover:shadow-xl transition-all duration-300 p-6 text-left"
             >
-              <span>전체보기</span>
-              <i class="fas fa-arrow-right"></i>
-            </a>
-          </div>
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            id="category-large"
-          ></div>
-          <a
-            href="listings.html?minSize=300&maxSize=500"
-            class="md:hidden mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
-          >
-            <span>전체보기</span>
-            <i class="fas fa-arrow-right"></i>
-          </a>
-        </div>
-
-        <!-- 카테고리 4: 화장품 공장 -->
-        <div class="mb-20">
-          <div class="flex items-center justify-between mb-8">
-            <div>
-              <h3
-                class="text-2xl md:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3"
-              >
-                <span
-                  class="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center text-white text-xl"
-                >
+              <div class="flex items-center gap-4 mb-3">
+                <div class="w-14 h-14 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center text-white text-2xl flex-shrink-0">
                   <i class="fas fa-flask"></i>
-                </span>
-                화장품 공장
-              </h3>
-              <p class="text-slate-600">청정 환경이 필요한 화장품 제조 시설</p>
-            </div>
-            <a
-              href="listings.html?q=화장품"
-              class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
-            >
-              <span>전체보기</span>
-              <i class="fas fa-arrow-right"></i>
-            </a>
-          </div>
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            id="category-cosmetics"
-          ></div>
-          <a
-            href="listings.html?q=화장품"
-            class="md:hidden mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
-          >
-            <span>전체보기</span>
-            <i class="fas fa-arrow-right"></i>
-          </a>
-        </div>
+                </div>
+                <div>
+                  <h4 class="text-xl font-bold text-slate-900 mb-1">화장품 공장</h4>
+                  <p class="text-sm text-slate-600">청정 환경</p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600">청정 환경이 필요한 화장품 제조 시설</p>
+            </button>
 
-        <!-- 카테고리 5: 금속, 기계 및 부품 제조 공장 -->
-        <div class="mb-20">
-          <div class="flex items-center justify-between mb-8">
-            <div>
-              <h3
-                class="text-2xl md:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3"
-              >
-                <span
-                  class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-white text-xl"
-                >
+            <!-- 금속 기계 부품 탭 -->
+            <button 
+              data-industry-tab="metal" 
+              class="industry-tab-btn group bg-white rounded-2xl border-4 border-slate-200 hover:border-orange-500 shadow-md hover:shadow-xl transition-all duration-300 p-6 text-left"
+            >
+              <div class="flex items-center gap-4 mb-3">
+                <div class="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-white text-2xl flex-shrink-0">
                   <i class="fas fa-cogs"></i>
-                </span>
-                금속·기계·부품 제조 공장
-              </h3>
-              <p class="text-slate-600">중장비 작업이 가능한 제조 시설</p>
-            </div>
-            <a
-              href="listings.html?q=금속"
-              class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
-            >
-              <span>전체보기</span>
-              <i class="fas fa-arrow-right"></i>
-            </a>
-          </div>
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            id="category-metal"
-          ></div>
-          <a
-            href="listings.html?q=금속"
-            class="md:hidden mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
-          >
-            <span>전체보기</span>
-            <i class="fas fa-arrow-right"></i>
-          </a>
-        </div>
+                </div>
+                <div>
+                  <h4 class="text-xl font-bold text-slate-900 mb-1">금속·기계·부품</h4>
+                  <p class="text-sm text-slate-600">제조 공장</p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600">중장비 작업이 가능한 제조 시설</p>
+            </button>
 
-        <!-- 카테고리 6: 식품 공장 -->
-        <div class="mb-20">
-          <div class="flex items-center justify-between mb-8">
-            <div>
-              <h3
-                class="text-2xl md:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3"
-              >
-                <span
-                  class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-white text-xl"
-                >
-                  <i class="fas fa-utensils"></i>
-                </span>
-                식품 공장
-              </h3>
-              <p class="text-slate-600">위생 시설이 완비된 식품 제조 공간</p>
-            </div>
-            <a
-              href="listings.html?q=식품"
-              class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
+            <!-- 식품 공장 탭 -->
+            <button 
+              data-industry-tab="food" 
+              class="industry-tab-btn group bg-white rounded-2xl border-4 border-slate-200 hover:border-red-500 shadow-md hover:shadow-xl transition-all duration-300 p-6 text-left"
             >
-              <span>전체보기</span>
-              <i class="fas fa-arrow-right"></i>
-            </a>
+              <div class="flex items-center gap-4 mb-3">
+                <div class="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-white text-2xl flex-shrink-0">
+                  <i class="fas fa-utensils"></i>
+                </div>
+                <div>
+                  <h4 class="text-xl font-bold text-slate-900 mb-1">식품 공장</h4>
+                  <p class="text-sm text-slate-600">위생 시설</p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600">위생 시설이 완비된 식품 제조 공간</p>
+            </button>
           </div>
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            id="category-food"
-          ></div>
-          <a
-            href="listings.html?q=식품"
-            class="md:hidden mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-semibold"
-          >
-            <span>전체보기</span>
-            <i class="fas fa-arrow-right"></i>
-          </a>
+
+          <!-- 업종별 매물 표시 영역 -->
+          <div id="industry-listings-container" class="relative">
+            <!-- 카테고리 헤더 (동적으로 변경됨) -->
+            <div class="mb-6 p-6 rounded-2xl border-4 bg-gradient-to-r from-pink-50 to-pink-100 border-pink-500" id="industry-category-header">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center text-white text-xl flex-shrink-0">
+                    <i class="fas fa-flask"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-2xl font-bold text-slate-900 mb-1">화장품 공장 TOP 3</h4>
+                    <p class="text-sm text-slate-700">청정 환경이 필요한 화장품 제조 시설</p>
+                  </div>
+                </div>
+                <a href="listings.html?q=화장품" class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-all font-semibold text-sm">
+                  <span>전체보기</span>
+                  <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              id="category-cosmetics"
+            ></div>
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"
+              id="category-metal"
+            ></div>
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"
+              id="category-food"
+            ></div>
+          </div>
         </div>
       </div>
     </section>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <main class="py-16">
       <!-- 섹션: 의뢰하기 -->
       <section id="section-request" class="mt-16 pt-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto px-4 text-center">
           <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
             의뢰하기
@@ -859,10 +882,12 @@
             </a>
           </div>
         </div>
+        </div>
       </section>
 
       <!-- 섹션: 회사소개 -->
       <section id="section-about" class="mt-16 pt-10 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto px-4 py-16">
           <!-- 회사 소개 헤더 -->
           <div class="text-center mb-12">
@@ -1132,10 +1157,12 @@
             </div>
           </div>
         </div>
+        </div>
       </section>
 
       <!-- 섹션: 공지사항 -->
       <section id="section-notice" class="mt-16 pt-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto px-4 text-center">
           <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
             공지사항
@@ -1146,8 +1173,215 @@
             <p class="text-slate-600 text-base">신규 매물 다수 업데이트</p>
           </div>
         </div>
+        </div>
       </section>
+
+      <!-- 최근 본 매물 사이드바 (화면 오른쪽에 고정) -->
+      <aside class="hidden xl:block fixed top-24 right-0 w-80 z-30" id="recentSidebar">
+        <div class="bg-white rounded-l-2xl border-l border-t border-b border-slate-200 shadow-xl overflow-hidden">
+          <!-- 헤더 (항상 보임) -->
+          <div class="bg-gradient-to-r from-navy-900 to-slate-800 text-white px-5 py-4 flex items-center justify-between cursor-pointer" id="recentHeader">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-clock-rotate-left"></i>
+              <h2 class="font-bold text-base">최근 본 매물</h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <button 
+                id="clearRecentListings" 
+                class="text-white/70 hover:text-white text-xs transition-colors mr-2"
+                title="전체 삭제"
+              >
+                전체삭제
+              </button>
+              <button 
+                id="toggleRecentListings" 
+                class="text-white/70 hover:text-white transition-colors"
+                title="접기/펼치기"
+              >
+                <i class="fas fa-chevron-up text-lg"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 최근 본 매물 목록 (토글 가능) -->
+          <div id="recentListingsContent" class="max-h-[calc(100vh-10rem)] overflow-y-auto transition-all duration-300">
+            <div id="recentListingsContainer" class="divide-y divide-slate-100">
+              <!-- 빈 상태 -->
+              <div id="emptyRecentState" class="p-8 text-center">
+                <i class="fas fa-eye-slash text-4xl text-slate-300 mb-3"></i>
+                <p class="text-slate-500 text-sm">최근 본 매물이 없습니다</p>
+                <p class="text-slate-400 text-xs mt-1">매물을 클릭하면 여기에 표시됩니다</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 모바일 최근 본 매물 버튼 (xl 미만 화면에서만 표시) -->
+      <button 
+        id="mobileRecentBtn" 
+        class="xl:hidden fixed bottom-6 right-6 w-14 h-14 bg-navy-900 text-white rounded-full shadow-lg hover:bg-navy-800 transition-all z-40 flex items-center justify-center"
+        aria-label="최근 본 매물"
+      >
+        <i class="fas fa-clock-rotate-left text-xl"></i>
+        <span id="recentCount" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center hidden">0</span>
+      </button>
+
+      <!-- 모바일 최근 본 매물 드로어 -->
+      <div 
+        id="mobileRecentDrawer" 
+        class="xl:hidden fixed inset-0 bg-black/50 z-50 hidden"
+      >
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white shadow-2xl transform translate-x-full transition-transform duration-300" id="drawerContent">
+          <!-- 드로어 헤더 -->
+          <div class="bg-gradient-to-r from-navy-900 to-slate-800 text-white px-5 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-clock-rotate-left"></i>
+              <h2 class="font-bold text-base">최근 본 매물</h2>
+            </div>
+            <button 
+              id="closeMobileDrawer" 
+              class="text-white/70 hover:text-white transition-colors"
+              aria-label="닫기"
+            >
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+
+          <!-- 드로어 내용 -->
+          <div class="overflow-y-auto h-[calc(100vh-64px)]">
+            <div id="mobileRecentListingsContainer" class="divide-y divide-slate-100">
+              <!-- 빈 상태 -->
+              <div class="p-8 text-center">
+                <i class="fas fa-eye-slash text-4xl text-slate-300 mb-3"></i>
+                <p class="text-slate-500 text-sm">최근 본 매물이 없습니다</p>
+                <p class="text-slate-400 text-xs mt-1">매물을 클릭하면 여기에 표시됩니다</p>
+              </div>
+            </div>
+
+            <!-- 전체 삭제 버튼 -->
+            <div class="p-4 border-t border-slate-200">
+              <button 
+                id="clearMobileRecentListings" 
+                class="w-full px-4 py-3 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-semibold text-sm"
+              >
+                전체 삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
+
+    <!-- 로그인 모달 -->
+    <div id="loginModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-slate-900">로그인</h2>
+          <button id="closeLoginModal" class="text-slate-400 hover:text-slate-600 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="space-y-4">
+          <div>
+            <label for="loginEmail" class="block text-sm font-semibold text-slate-700 mb-2">이메일</label>
+            <input
+              id="loginEmail"
+              type="email"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none"
+              placeholder="example@email.com"
+            />
+          </div>
+          
+          <div>
+            <label for="loginPassword" class="block text-sm font-semibold text-slate-700 mb-2">비밀번호</label>
+            <input
+              id="loginPassword"
+              type="password"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none"
+              placeholder="••••••••"
+            />
+          </div>
+          
+          <button
+            id="loginSubmitBtn"
+            class="w-full py-3 bg-navy-900 text-white font-semibold rounded-xl hover:bg-navy-800 transition-all"
+          >
+            로그인
+          </button>
+          
+          <p id="loginMsg" class="text-sm text-red-600 text-center"></p>
+          
+          <p class="text-center text-sm text-slate-600">
+            계정이 없으신가요?
+            <button id="switchToSignup" class="text-navy-900 font-semibold hover:underline">
+              회원가입
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 회원가입 모달 -->
+    <div id="signupModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-slate-900">회원가입</h2>
+          <button id="closeSignupModal" class="text-slate-400 hover:text-slate-600 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="space-y-4">
+          <div>
+            <label for="signupEmail" class="block text-sm font-semibold text-slate-700 mb-2">이메일</label>
+            <input
+              id="signupEmail"
+              type="email"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none"
+              placeholder="example@email.com"
+            />
+          </div>
+          
+          <div>
+            <label for="signupPassword" class="block text-sm font-semibold text-slate-700 mb-2">비밀번호</label>
+            <input
+              id="signupPassword"
+              type="password"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none"
+              placeholder="최소 6자 이상"
+            />
+          </div>
+          
+          <div>
+            <label for="signupPasswordConfirm" class="block text-sm font-semibold text-slate-700 mb-2">비밀번호 확인</label>
+            <input
+              id="signupPasswordConfirm"
+              type="password"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none"
+              placeholder="비밀번호 재입력"
+            />
+          </div>
+          
+          <button
+            id="signupSubmitBtn"
+            class="w-full py-3 bg-navy-900 text-white font-semibold rounded-xl hover:bg-navy-800 transition-all"
+          >
+            회원가입
+          </button>
+          
+          <p id="signupMsg" class="text-sm text-red-600 text-center"></p>
+          
+          <p class="text-center text-sm text-slate-600">
+            이미 계정이 있으신가요?
+            <button id="switchToLogin" class="text-navy-900 font-semibold hover:underline">
+              로그인
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
 
     <footer class="bg-white border-t border-slate-200 mt-16">
       <div class="max-w-7xl mx-auto px-4 py-12">

@@ -6,7 +6,19 @@ import {
   getFirestore,
   collection,
   getDocs,
+  getDoc,
+  doc,
+  setDoc,
+  updateDoc,
+  serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
 // Firebase 설정
 const firebaseConfig = {
@@ -21,6 +33,101 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+
+// Admin 이메일 목록
+const ADMIN_EMAILS = ["admin@vision.com", "vs1705@daum.net"];
+
+// 최근 본 매물 관리
+const RECENT_LISTINGS_KEY = "recentListings";
+const MAX_RECENT_ITEMS = 10;
+
+function getRecentListings() {
+  try {
+    const stored = localStorage.getItem(RECENT_LISTINGS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error("최근 본 매물 로드 실패:", error);
+    return [];
+  }
+}
+
+function clearRecentListings() {
+  try {
+    localStorage.removeItem(RECENT_LISTINGS_KEY);
+    renderRecentListings();
+  } catch (error) {
+    console.error("최근 본 매물 삭제 실패:", error);
+  }
+}
+
+function renderRecentListings() {
+  const container = qs("#recentListingsContainer");
+  const mobileContainer = qs("#mobileRecentListingsContainer");
+  const recentCountBadge = qs("#recentCount");
+  
+  const recent = getRecentListings();
+  
+  // 카운트 배지 업데이트
+  if (recentCountBadge) {
+    if (recent.length > 0) {
+      recentCountBadge.textContent = recent.length;
+      recentCountBadge.classList.remove("hidden");
+    } else {
+      recentCountBadge.classList.add("hidden");
+    }
+  }
+  
+  const emptyHTML = `
+    <div class="p-8 text-center">
+      <i class="fas fa-eye-slash text-4xl text-slate-300 mb-3"></i>
+      <p class="text-slate-500 text-sm">최근 본 매물이 없습니다</p>
+      <p class="text-slate-400 text-xs mt-1">매물을 클릭하면 여기에 표시됩니다</p>
+    </div>
+  `;
+  
+  const html = recent.length === 0 ? emptyHTML : recent.map(item => `
+    <a href="/listing.html?id=${item.id}" class="block p-3 hover:bg-slate-50 transition-colors">
+      <div class="flex gap-3">
+        <img 
+          src="${item.images?.[0] || "/assets/placeholder.jpg"}" 
+          alt="${item.title}"
+          class="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+          loading="lazy"
+        />
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <span class="text-xs font-semibold text-navy-900 bg-slate-100 px-2 py-0.5 rounded">
+              ${item.dealType}
+            </span>
+          </div>
+          <h3 class="text-sm font-semibold text-slate-900 line-clamp-2 mb-1">
+            ${item.title}
+          </h3>
+          <p class="text-xs font-bold text-navy-900 mb-1">
+            ${item.price 
+              ? fmt.price(item.price) 
+              : `${fmt.price(item.deposit)} / ${fmt.price(item.rent)}`
+            }
+          </p>
+          <p class="text-xs text-slate-500">
+            ${item.region} · ${fmt.pyeong(item.sizePyeong)}
+          </p>
+        </div>
+      </div>
+    </a>
+  `).join("");
+  
+  // 데스크탑 사이드바 업데이트
+  if (container) {
+    container.innerHTML = html;
+  }
+  
+  // 모바일 드로어 업데이트
+  if (mobileContainer) {
+    mobileContainer.innerHTML = html;
+  }
+}
 
 // 매물 데이터 로드
 let listings = [];
@@ -47,15 +154,17 @@ async function loadListings() {
 
     console.log(`✅ ${listings.length}개 매물 로드 완료`);
     renderCategories();
+    renderRecentListings(); // 최근 본 매물 렌더링
   } catch (error) {
     console.error("⚠️ Firebase 매물 로드 실패, 샘플 데이터 사용:", error);
     // Firebase 로드 실패 시 샘플 데이터만 사용
     renderCategories();
+    renderRecentListings(); // 최근 본 매물 렌더링
   }
 }
 
 // 매물 카드 생성 함수
-function createListingCard(listing) {
+function createListingCard(listing, colorTheme = null) {
   // 가격 포맷 헬퍼 함수
   const formatPrice = (n) => {
     if (!n) return "0";
@@ -79,8 +188,13 @@ function createListingCard(listing) {
   // 이미지 URL (첫 번째 이미지 또는 placeholder)
   const imageUrl = (listing.images && listing.images[0]) ? listing.images[0] : "/assets/placeholder.jpg";
 
+  // 색상 테마 적용
+  const borderClass = colorTheme ? `border-4 ${colorTheme.border}` : 'border border-slate-200';
+  const btnClass = colorTheme ? colorTheme.btn : 'bg-navy-900 hover:bg-navy-800';
+  const hoverBorderClass = colorTheme ? colorTheme.hover : 'hover:border-slate-300';
+
   return `
-    <article class="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+    <article class="group bg-white rounded-2xl ${borderClass} ${hoverBorderClass} shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
       <div class="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 relative overflow-hidden">
         <img src="${imageUrl}" alt="${listing.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='/assets/placeholder.jpg'" />
         <div class="absolute top-3 left-3">
@@ -113,7 +227,7 @@ function createListingCard(listing) {
           </div>
         </div>
         <div class="flex gap-2">
-          <a href="listing.html?id=${listing.id}" class="flex-1 px-4 py-2 bg-navy-900 text-white text-sm font-semibold rounded-lg hover:bg-navy-800 transition-colors text-center">
+          <a href="listing.html?id=${listing.id}" class="flex-1 px-4 py-2 ${btnClass} text-white text-sm font-semibold rounded-lg transition-colors text-center">
             상세보기
           </a>
           <a href="tel:0328125001" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
@@ -183,24 +297,24 @@ function renderCategories() {
     console.log("⚠️ 등록된 매물이 없어 샘플 데이터 사용");
     const sampleData = generateSampleListings();
     
-    renderCategory("#category-small", sampleData.small.slice(0, 3));
-    renderCategory("#category-medium", sampleData.medium.slice(0, 3));
-    renderCategory("#category-large", sampleData.large.slice(0, 3));
-    renderCategory("#category-cosmetics", sampleData.cosmetics.slice(0, 3));
-    renderCategory("#category-metal", sampleData.metal.slice(0, 3));
-    renderCategory("#category-food", sampleData.food.slice(0, 3));
+    renderCategory("#category-small", sampleData.small.slice(0, 3), getColorTheme('small'));
+    renderCategory("#category-medium", sampleData.medium.slice(0, 3), getColorTheme('medium'));
+    renderCategory("#category-large", sampleData.large.slice(0, 3), getColorTheme('large'));
+    renderCategory("#category-cosmetics", sampleData.cosmetics.slice(0, 3), getColorTheme('cosmetics'));
+    renderCategory("#category-metal", sampleData.metal.slice(0, 3), getColorTheme('metal'));
+    renderCategory("#category-food", sampleData.food.slice(0, 3), getColorTheme('food'));
     return;
   }
 
   console.log("✅ 실제 등록된 매물 사용");
 
   // 각 카테고리별로 매물 가져오기 (featured 우선)
-  renderCategory("#category-small", getFeaturedListings("small"));
-  renderCategory("#category-medium", getFeaturedListings("medium"));
-  renderCategory("#category-large", getFeaturedListings("large"));
-  renderCategory("#category-cosmetics", getFeaturedListings("cosmetics"));
-  renderCategory("#category-metal", getFeaturedListings("metal"));
-  renderCategory("#category-food", getFeaturedListings("food"));
+  renderCategory("#category-small", getFeaturedListings("small"), getColorTheme('small'));
+  renderCategory("#category-medium", getFeaturedListings("medium"), getColorTheme('medium'));
+  renderCategory("#category-large", getFeaturedListings("large"), getColorTheme('large'));
+  renderCategory("#category-cosmetics", getFeaturedListings("cosmetics"), getColorTheme('cosmetics'));
+  renderCategory("#category-metal", getFeaturedListings("metal"), getColorTheme('metal'));
+  renderCategory("#category-food", getFeaturedListings("food"), getColorTheme('food'));
 }
 
 // 카테고리별 매물 가져오기 (featured 우선, 없으면 자동 필터링)
@@ -284,7 +398,7 @@ function getFeaturedListings(category) {
 }
 
 // 카테고리 렌더링 헬퍼 함수
-function renderCategory(containerId, listingsData) {
+function renderCategory(containerId, listingsData, colorTheme = null) {
   const container = qs(containerId);
   if (!container) return;
 
@@ -298,11 +412,224 @@ function renderCategory(containerId, listingsData) {
     return;
   }
 
-  container.innerHTML = listingsData.map(createListingCard).join("");
+  container.innerHTML = listingsData.map(listing => createListingCard(listing, colorTheme)).join("");
+}
+
+// 카테고리별 색상 테마 가져오기
+function getColorTheme(category) {
+  const themes = {
+    'small': { border: 'border-blue-500', btn: 'bg-blue-600 hover:bg-blue-700', hover: 'hover:border-blue-500' },
+    'medium': { border: 'border-purple-500', btn: 'bg-purple-600 hover:bg-purple-700', hover: 'hover:border-purple-500' },
+    'large': { border: 'border-emerald-500', btn: 'bg-emerald-600 hover:bg-emerald-700', hover: 'hover:border-emerald-500' },
+    'cosmetics': { border: 'border-pink-500', btn: 'bg-pink-600 hover:bg-pink-700', hover: 'hover:border-pink-500' },
+    'metal': { border: 'border-orange-500', btn: 'bg-orange-600 hover:bg-orange-700', hover: 'hover:border-orange-500' },
+    'food': { border: 'border-red-500', btn: 'bg-red-600 hover:bg-red-700', hover: 'hover:border-red-500' }
+  };
+  return themes[category] || { border: 'border-slate-200', btn: 'bg-navy-900 hover:bg-navy-800', hover: 'hover:border-slate-300' };
 }
 
 // 페이지 로드 시 매물 데이터 가져오기
 loadListings();
+
+// 평수별 탭 전환
+const sizeTabBtns = document.querySelectorAll('[data-size-tab]');
+const sizeHeader = document.getElementById('size-category-header');
+
+sizeTabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tabName = btn.dataset.sizeTab;
+    
+    // 모든 탭 버튼 비활성화
+    sizeTabBtns.forEach(b => {
+      b.classList.remove('active', 'border-blue-500', 'border-purple-500', 'border-emerald-500', 'shadow-lg');
+      b.classList.add('border-slate-200', 'shadow-md');
+    });
+    
+    // 클릭한 탭 활성화
+    btn.classList.add('active', 'shadow-lg');
+    btn.classList.remove('border-slate-200', 'shadow-md');
+    
+    // 헤더 업데이트
+    let headerContent = '';
+    let headerClass = '';
+    let linkHref = '';
+    let btnColor = '';
+    
+    if (tabName === 'small') {
+      btn.classList.add('border-blue-500');
+      headerClass = 'from-blue-50 to-blue-100 border-blue-500';
+      btnColor = 'bg-blue-600 hover:bg-blue-700';
+      linkHref = 'listings.html?maxSize=100';
+      headerContent = `
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white text-xl flex-shrink-0">
+            <i class="fas fa-home"></i>
+          </div>
+          <div>
+            <h4 class="text-2xl font-bold text-slate-900 mb-1">소형 평수 TOP 3</h4>
+            <p class="text-sm text-slate-700">100평 미만 | 소규모 사업에 최적화된 공간</p>
+          </div>
+        </div>
+        <a href="${linkHref}" class="hidden md:inline-flex items-center gap-2 px-6 py-3 ${btnColor} text-white rounded-xl transition-all font-semibold text-sm">
+          <span>전체보기</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      `;
+    } else if (tabName === 'medium') {
+      btn.classList.add('border-purple-500');
+      headerClass = 'from-purple-50 to-purple-100 border-purple-500';
+      btnColor = 'bg-purple-600 hover:bg-purple-700';
+      linkHref = 'listings.html?minSize=100&maxSize=300';
+      headerContent = `
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-xl flex-shrink-0">
+            <i class="fas fa-warehouse"></i>
+          </div>
+          <div>
+            <h4 class="text-2xl font-bold text-slate-900 mb-1">중형 평수 TOP 3</h4>
+            <p class="text-sm text-slate-700">100평 ~ 300평 | 중소기업 규모에 적합한 공간</p>
+          </div>
+        </div>
+        <a href="${linkHref}" class="hidden md:inline-flex items-center gap-2 px-6 py-3 ${btnColor} text-white rounded-xl transition-all font-semibold text-sm">
+          <span>전체보기</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      `;
+    } else if (tabName === 'large') {
+      btn.classList.add('border-emerald-500');
+      headerClass = 'from-emerald-50 to-emerald-100 border-emerald-500';
+      btnColor = 'bg-emerald-600 hover:bg-emerald-700';
+      linkHref = 'listings.html?minSize=300&maxSize=500';
+      headerContent = `
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center text-white text-xl flex-shrink-0">
+            <i class="fas fa-industry"></i>
+          </div>
+          <div>
+            <h4 class="text-2xl font-bold text-slate-900 mb-1">대형 평수 TOP 3</h4>
+            <p class="text-sm text-slate-700">300평 ~ 500평 | 대규모 생산 시설에 최적화</p>
+          </div>
+        </div>
+        <a href="${linkHref}" class="hidden md:inline-flex items-center gap-2 px-6 py-3 ${btnColor} text-white rounded-xl transition-all font-semibold text-sm">
+          <span>전체보기</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      `;
+    }
+    
+    // 헤더 클래스 업데이트
+    sizeHeader.className = `mb-6 p-6 rounded-2xl border-4 bg-gradient-to-r ${headerClass}`;
+    sizeHeader.querySelector('.flex.items-center.justify-between').innerHTML = headerContent;
+    
+    // 모든 매물 컨테이너 숨기기
+    document.getElementById('category-small').classList.add('hidden');
+    document.getElementById('category-medium').classList.add('hidden');
+    document.getElementById('category-large').classList.add('hidden');
+    
+    // 선택한 카테고리만 표시
+    document.getElementById(`category-${tabName}`).classList.remove('hidden');
+  });
+});
+
+// 업종별 탭 전환
+const industryTabBtns = document.querySelectorAll('[data-industry-tab]');
+const industryHeader = document.getElementById('industry-category-header');
+
+industryTabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tabName = btn.dataset.industryTab;
+    
+    // 모든 탭 버튼 비활성화
+    industryTabBtns.forEach(b => {
+      b.classList.remove('active', 'border-pink-500', 'border-orange-500', 'border-red-500', 'shadow-lg');
+      b.classList.add('border-slate-200', 'shadow-md');
+    });
+    
+    // 클릭한 탭 활성화
+    btn.classList.add('active', 'shadow-lg');
+    btn.classList.remove('border-slate-200', 'shadow-md');
+    
+    // 헤더 업데이트
+    let headerContent = '';
+    let headerClass = '';
+    let linkHref = '';
+    let btnColor = '';
+    
+    if (tabName === 'cosmetics') {
+      btn.classList.add('border-pink-500');
+      headerClass = 'from-pink-50 to-pink-100 border-pink-500';
+      btnColor = 'bg-pink-600 hover:bg-pink-700';
+      linkHref = 'listings.html?q=화장품';
+      headerContent = `
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center text-white text-xl flex-shrink-0">
+            <i class="fas fa-flask"></i>
+          </div>
+          <div>
+            <h4 class="text-2xl font-bold text-slate-900 mb-1">화장품 공장 TOP 3</h4>
+            <p class="text-sm text-slate-700">청정 환경이 필요한 화장품 제조 시설</p>
+          </div>
+        </div>
+        <a href="${linkHref}" class="hidden md:inline-flex items-center gap-2 px-6 py-3 ${btnColor} text-white rounded-xl transition-all font-semibold text-sm">
+          <span>전체보기</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      `;
+    } else if (tabName === 'metal') {
+      btn.classList.add('border-orange-500');
+      headerClass = 'from-orange-50 to-orange-100 border-orange-500';
+      btnColor = 'bg-orange-600 hover:bg-orange-700';
+      linkHref = 'listings.html?q=금속';
+      headerContent = `
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-white text-xl flex-shrink-0">
+            <i class="fas fa-cogs"></i>
+          </div>
+          <div>
+            <h4 class="text-2xl font-bold text-slate-900 mb-1">금속·기계·부품 제조 공장 TOP 3</h4>
+            <p class="text-sm text-slate-700">중장비 작업이 가능한 제조 시설</p>
+          </div>
+        </div>
+        <a href="${linkHref}" class="hidden md:inline-flex items-center gap-2 px-6 py-3 ${btnColor} text-white rounded-xl transition-all font-semibold text-sm">
+          <span>전체보기</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      `;
+    } else if (tabName === 'food') {
+      btn.classList.add('border-red-500');
+      headerClass = 'from-red-50 to-red-100 border-red-500';
+      btnColor = 'bg-red-600 hover:bg-red-700';
+      linkHref = 'listings.html?q=식품';
+      headerContent = `
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-white text-xl flex-shrink-0">
+            <i class="fas fa-utensils"></i>
+          </div>
+          <div>
+            <h4 class="text-2xl font-bold text-slate-900 mb-1">식품 공장 TOP 3</h4>
+            <p class="text-sm text-slate-700">위생 시설이 완비된 식품 제조 공간</p>
+          </div>
+        </div>
+        <a href="${linkHref}" class="hidden md:inline-flex items-center gap-2 px-6 py-3 ${btnColor} text-white rounded-xl transition-all font-semibold text-sm">
+          <span>전체보기</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      `;
+    }
+    
+    // 헤더 클래스 업데이트
+    industryHeader.className = `mb-6 p-6 rounded-2xl border-4 bg-gradient-to-r ${headerClass}`;
+    industryHeader.querySelector('.flex.items-center.justify-between').innerHTML = headerContent;
+    
+    // 모든 매물 컨테이너 숨기기
+    document.getElementById('category-cosmetics').classList.add('hidden');
+    document.getElementById('category-metal').classList.add('hidden');
+    document.getElementById('category-food').classList.add('hidden');
+    
+    // 선택한 카테고리만 표시
+    document.getElementById(`category-${tabName}`).classList.remove('hidden');
+  });
+});
 
 // 모바일 햄버거 메뉴 토글
 const mobileMenuToggle = qs("#mobileMenuToggle");
@@ -345,6 +672,463 @@ if (mobileSearchForm) {
       window.location.href = `listings.html?q=${encodeURIComponent(q)}`;
     } else {
       window.location.href = "listings.html";
+    }
+  });
+}
+
+// 최근 본 매물 전체 삭제 (데스크탑)
+const clearBtn = qs("#clearRecentListings");
+if (clearBtn) {
+  clearBtn.addEventListener("click", (e) => {
+    e.stopPropagation(); // 헤더 클릭 이벤트 방지
+    if (confirm("최근 본 매물을 모두 삭제하시겠습니까?")) {
+      clearRecentListings();
+    }
+  });
+}
+
+// 최근 본 매물 토글 (접기/펼치기)
+const toggleBtn = qs("#toggleRecentListings");
+const recentContent = qs("#recentListingsContent");
+const recentHeader = qs("#recentHeader");
+let isExpanded = true; // 초기 상태: 펼쳐짐
+
+function toggleRecentListings() {
+  if (!recentContent || !toggleBtn) return;
+
+  isExpanded = !isExpanded;
+  const icon = toggleBtn.querySelector("i");
+
+  if (isExpanded) {
+    // 펼치기
+    recentContent.style.maxHeight = "calc(100vh - 10rem)";
+    recentContent.style.opacity = "1";
+    if (icon) {
+      icon.className = "fas fa-chevron-up text-lg";
+    }
+  } else {
+    // 접기
+    recentContent.style.maxHeight = "0";
+    recentContent.style.opacity = "0";
+    if (icon) {
+      icon.className = "fas fa-chevron-down text-lg";
+    }
+  }
+}
+
+if (toggleBtn) {
+  toggleBtn.addEventListener("click", (e) => {
+    e.stopPropagation(); // 헤더 클릭 이벤트 방지
+    toggleRecentListings();
+  });
+}
+
+// 헤더 전체 클릭 시에도 토글
+if (recentHeader) {
+  recentHeader.addEventListener("click", (e) => {
+    // 버튼이 아닌 헤더 영역 클릭 시에만 토글
+    if (e.target === recentHeader || e.target.closest("h2") || e.target.closest(".fa-clock-rotate-left")) {
+      toggleRecentListings();
+    }
+  });
+}
+
+// 최근 본 매물 전체 삭제 (모바일)
+const clearMobileBtn = qs("#clearMobileRecentListings");
+if (clearMobileBtn) {
+  clearMobileBtn.addEventListener("click", () => {
+    if (confirm("최근 본 매물을 모두 삭제하시겠습니까?")) {
+      clearRecentListings();
+    }
+  });
+}
+
+// 모바일 최근 본 매물 드로어
+const mobileRecentBtn = qs("#mobileRecentBtn");
+const mobileRecentDrawer = qs("#mobileRecentDrawer");
+const drawerContent = qs("#drawerContent");
+const closeDrawerBtn = qs("#closeMobileDrawer");
+
+function openMobileDrawer() {
+  if (mobileRecentDrawer && drawerContent) {
+    mobileRecentDrawer.classList.remove("hidden");
+    setTimeout(() => {
+      drawerContent.classList.remove("translate-x-full");
+    }, 10);
+    document.body.style.overflow = "hidden";
+  }
+}
+
+function closeMobileDrawer() {
+  if (mobileRecentDrawer && drawerContent) {
+    drawerContent.classList.add("translate-x-full");
+    setTimeout(() => {
+      mobileRecentDrawer.classList.add("hidden");
+      document.body.style.overflow = "";
+    }, 300);
+  }
+}
+
+if (mobileRecentBtn) {
+  mobileRecentBtn.addEventListener("click", openMobileDrawer);
+}
+
+if (closeDrawerBtn) {
+  closeDrawerBtn.addEventListener("click", closeMobileDrawer);
+}
+
+if (mobileRecentDrawer) {
+  // 배경 클릭 시 닫기
+  mobileRecentDrawer.addEventListener("click", (e) => {
+    if (e.target === mobileRecentDrawer) {
+      closeMobileDrawer();
+    }
+  });
+}
+
+// ==================== 인증 기능 ====================
+
+// 로그인 상태 확인
+onAuthStateChanged(auth, (user) => {
+  const authButtons = qs("#authButtons");
+  const userInfo = qs("#userInfo");
+  const userEmailSpan = qs("#userEmail");
+  
+  // 모바일
+  const mobileAuthButtons = qs("#mobileAuthButtons");
+  const mobileUserInfo = qs("#mobileUserInfo");
+  const mobileUserEmailSpan = qs("#mobileUserEmail");
+
+  if (user) {
+    // 로그인 상태
+    if (authButtons) authButtons.classList.add("hidden");
+    if (userInfo) {
+      userInfo.classList.remove("hidden");
+      if (userEmailSpan) userEmailSpan.textContent = user.email;
+    }
+    
+    // 모바일
+    if (mobileAuthButtons) mobileAuthButtons.classList.add("hidden");
+    if (mobileUserInfo) {
+      mobileUserInfo.classList.remove("hidden");
+      if (mobileUserEmailSpan) mobileUserEmailSpan.textContent = user.email;
+    }
+
+    // Admin 계정 체크
+    if (ADMIN_EMAILS.includes(user.email)) {
+      console.log("🔑 Admin 계정 감지:", user.email);
+      showAdminButton();
+    }
+  } else {
+    // 로그아웃 상태
+    if (authButtons) authButtons.classList.remove("hidden");
+    if (userInfo) userInfo.classList.add("hidden");
+    
+    // 모바일
+    if (mobileAuthButtons) mobileAuthButtons.classList.remove("hidden");
+    if (mobileUserInfo) mobileUserInfo.classList.add("hidden");
+  }
+});
+
+// Admin 버튼 표시
+function showAdminButton() {
+  // 데스크탑
+  const userInfo = qs("#userInfo");
+  if (userInfo && !qs("#adminPageBtn")) {
+    const adminBtn = document.createElement("a");
+    adminBtn.id = "adminPageBtn";
+    adminBtn.href = "/admin/index.html";
+    adminBtn.className = "px-4 py-2 text-sm font-semibold bg-red-600 text-white hover:bg-red-700 rounded-xl transition-all";
+    adminBtn.innerHTML = '<i class="fas fa-cog mr-1"></i> 관리자';
+    userInfo.insertBefore(adminBtn, qs("#logoutBtn"));
+  }
+  
+  // 모바일
+  const mobileUserInfo = qs("#mobileUserInfo");
+  if (mobileUserInfo && !qs("#mobileAdminPageBtn")) {
+    const mobileAdminBtn = document.createElement("a");
+    mobileAdminBtn.id = "mobileAdminPageBtn";
+    mobileAdminBtn.href = "/admin/index.html";
+    mobileAdminBtn.className = "block w-full px-4 py-3 text-base font-semibold bg-red-600 text-white hover:bg-red-700 rounded-xl transition-colors text-center";
+    mobileAdminBtn.innerHTML = '<i class="fas fa-cog mr-1"></i> 관리자 페이지';
+    mobileUserInfo.insertBefore(mobileAdminBtn, qs("#mobileLogoutBtn"));
+  }
+}
+
+// 모달 열기/닫기
+const loginModal = qs("#loginModal");
+const signupModal = qs("#signupModal");
+const loginBtn = qs("#loginBtn");
+const signupBtn = qs("#signupBtn");
+const closeLoginModal = qs("#closeLoginModal");
+const closeSignupModal = qs("#closeSignupModal");
+const switchToSignup = qs("#switchToSignup");
+const switchToLogin = qs("#switchToLogin");
+
+function openLoginModal() {
+  if (loginModal) {
+    loginModal.classList.remove("hidden");
+    loginModal.classList.add("flex");
+    document.body.style.overflow = "hidden";
+  }
+}
+
+function closeLoginModalFunc() {
+  if (loginModal) {
+    loginModal.classList.add("hidden");
+    loginModal.classList.remove("flex");
+    document.body.style.overflow = "";
+    qs("#loginEmail").value = "";
+    qs("#loginPassword").value = "";
+    qs("#loginMsg").textContent = "";
+  }
+}
+
+function openSignupModal() {
+  if (signupModal) {
+    signupModal.classList.remove("hidden");
+    signupModal.classList.add("flex");
+    document.body.style.overflow = "hidden";
+  }
+}
+
+function closeSignupModalFunc() {
+  if (signupModal) {
+    signupModal.classList.add("hidden");
+    signupModal.classList.remove("flex");
+    document.body.style.overflow = "";
+    qs("#signupEmail").value = "";
+    qs("#signupPassword").value = "";
+    qs("#signupPasswordConfirm").value = "";
+    qs("#signupMsg").textContent = "";
+  }
+}
+
+// 이벤트 리스너 (데스크탑)
+if (loginBtn) loginBtn.addEventListener("click", openLoginModal);
+if (signupBtn) signupBtn.addEventListener("click", openSignupModal);
+if (closeLoginModal) closeLoginModal.addEventListener("click", closeLoginModalFunc);
+if (closeSignupModal) closeSignupModal.addEventListener("click", closeSignupModalFunc);
+
+// 이벤트 리스너 (모바일)
+const mobileLoginBtn = qs("#mobileLoginBtn");
+const mobileSignupBtn = qs("#mobileSignupBtn");
+const mobileLogoutBtn = qs("#mobileLogoutBtn");
+
+if (mobileLoginBtn) mobileLoginBtn.addEventListener("click", openLoginModal);
+if (mobileSignupBtn) mobileSignupBtn.addEventListener("click", openSignupModal);
+if (mobileLogoutBtn) {
+  mobileLogoutBtn.addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+      alert("로그아웃되었습니다.");
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      alert("로그아웃 실패: " + error.message);
+    }
+  });
+}
+
+// 모달 전환
+if (switchToSignup) {
+  switchToSignup.addEventListener("click", () => {
+    closeLoginModalFunc();
+    openSignupModal();
+  });
+}
+
+if (switchToLogin) {
+  switchToLogin.addEventListener("click", () => {
+    closeSignupModalFunc();
+    openLoginModal();
+  });
+}
+
+// 배경 클릭 시 닫기
+if (loginModal) {
+  loginModal.addEventListener("click", (e) => {
+    if (e.target === loginModal) closeLoginModalFunc();
+  });
+}
+
+if (signupModal) {
+  signupModal.addEventListener("click", (e) => {
+    if (e.target === signupModal) closeSignupModalFunc();
+  });
+}
+
+// 로그인 처리
+async function handleLogin() {
+  const email = qs("#loginEmail").value.trim();
+  const password = qs("#loginPassword").value;
+  const msgEl = qs("#loginMsg");
+
+  if (!email || !password) {
+    msgEl.textContent = "이메일과 비밀번호를 입력해주세요.";
+    return;
+  }
+
+  try {
+    msgEl.textContent = "로그인 중...";
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    
+    // Firestore에 사용자 정보 저장/업데이트
+    try {
+      const userDocRef = doc(db, "users", userCredential.user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      
+      if (!userDocSnap.exists()) {
+        // 사용자 문서가 없으면 생성 (기존 계정 대응)
+        const isAdmin = ADMIN_EMAILS.includes(userCredential.user.email);
+        await setDoc(userDocRef, {
+          email: userCredential.user.email,
+          role: isAdmin ? "admin" : "user",
+          createdAt: serverTimestamp(),
+          lastLoginAt: serverTimestamp(),
+        });
+        console.log("✅ 새 사용자 문서 생성");
+      } else {
+        // 마지막 로그인 시간만 업데이트
+        await updateDoc(userDocRef, {
+          lastLoginAt: serverTimestamp(),
+        });
+      }
+    } catch (firestoreError) {
+      console.warn("⚠️ Firestore 업데이트 실패:", firestoreError);
+    }
+    
+    // Admin 계정 체크
+    if (ADMIN_EMAILS.includes(userCredential.user.email)) {
+      window.location.href = "/admin/index.html";
+    } else {
+      closeLoginModalFunc();
+      msgEl.textContent = "";
+    }
+  } catch (error) {
+    console.error("로그인 실패:", error);
+    if (error.code === "auth/invalid-credential") {
+      msgEl.textContent = "이메일 또는 비밀번호가 잘못되었습니다.";
+    } else if (error.code === "auth/user-not-found") {
+      msgEl.textContent = "존재하지 않는 계정입니다.";
+    } else if (error.code === "auth/wrong-password") {
+      msgEl.textContent = "비밀번호가 잘못되었습니다.";
+    } else {
+      msgEl.textContent = "로그인 실패: " + error.message;
+    }
+  }
+}
+
+const loginSubmitBtn = qs("#loginSubmitBtn");
+if (loginSubmitBtn) {
+  loginSubmitBtn.addEventListener("click", handleLogin);
+}
+
+// 로그인 모달에서 엔터키 처리
+const loginEmailInput = qs("#loginEmail");
+const loginPasswordInput = qs("#loginPassword");
+if (loginEmailInput) {
+  loginEmailInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") handleLogin();
+  });
+}
+if (loginPasswordInput) {
+  loginPasswordInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") handleLogin();
+  });
+}
+
+// 회원가입 처리
+async function handleSignup() {
+  const email = qs("#signupEmail").value.trim();
+  const password = qs("#signupPassword").value;
+  const passwordConfirm = qs("#signupPasswordConfirm").value;
+  const msgEl = qs("#signupMsg");
+
+  if (!email || !password || !passwordConfirm) {
+    msgEl.textContent = "모든 필드를 입력해주세요.";
+    return;
+  }
+
+  if (password.length < 6) {
+    msgEl.textContent = "비밀번호는 최소 6자 이상이어야 합니다.";
+    return;
+  }
+
+  if (password !== passwordConfirm) {
+    msgEl.textContent = "비밀번호가 일치하지 않습니다.";
+    return;
+  }
+
+  try {
+    msgEl.textContent = "회원가입 중...";
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    
+    // Firestore에 사용자 정보 저장
+    try {
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        email: userCredential.user.email,
+        role: "user", // 기본값: 일반회원
+        createdAt: serverTimestamp(),
+        lastLoginAt: serverTimestamp(),
+      });
+      console.log("✅ 사용자 정보 Firestore에 저장 완료");
+    } catch (firestoreError) {
+      console.error("⚠️ Firestore 저장 실패:", firestoreError);
+      // Firestore 저장 실패해도 회원가입은 성공으로 처리
+    }
+    
+    closeSignupModalFunc();
+    msgEl.textContent = "";
+    alert("회원가입이 완료되었습니다!");
+  } catch (error) {
+    console.error("회원가입 실패:", error);
+    if (error.code === "auth/email-already-in-use") {
+      msgEl.textContent = "이미 사용 중인 이메일입니다.";
+    } else if (error.code === "auth/invalid-email") {
+      msgEl.textContent = "유효하지 않은 이메일 형식입니다.";
+    } else if (error.code === "auth/weak-password") {
+      msgEl.textContent = "비밀번호가 너무 약합니다. 6자 이상 입력해주세요.";
+    } else {
+      msgEl.textContent = "회원가입 실패: " + error.message;
+    }
+  }
+}
+
+const signupSubmitBtn = qs("#signupSubmitBtn");
+if (signupSubmitBtn) {
+  signupSubmitBtn.addEventListener("click", handleSignup);
+}
+
+// 회원가입 모달에서 엔터키 처리
+const signupEmailInput = qs("#signupEmail");
+const signupPasswordInput = qs("#signupPassword");
+const signupPasswordConfirmInput = qs("#signupPasswordConfirm");
+if (signupEmailInput) {
+  signupEmailInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") handleSignup();
+  });
+}
+if (signupPasswordInput) {
+  signupPasswordInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") handleSignup();
+  });
+}
+if (signupPasswordConfirmInput) {
+  signupPasswordConfirmInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") handleSignup();
+  });
+}
+
+// 로그아웃 처리
+const logoutBtn = qs("#logoutBtn");
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+      alert("로그아웃되었습니다.");
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      alert("로그아웃 실패: " + error.message);
     }
   });
 }

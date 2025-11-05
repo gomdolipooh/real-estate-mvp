@@ -114,6 +114,8 @@ function setupTabs() {
         loadFilterOptions();
       } else if (targetTab === "inquiries") {
         loadInquiries();
+      } else if (targetTab === "users") {
+        loadUsers();
       }
     });
   });
@@ -1314,3 +1316,161 @@ window.closeInquiryModal = function () {
     document.body.style.overflow = "";
   }
 };
+
+// ==================== 회원 관리 ====================
+
+let allUsers = [];
+let filteredUsers = [];
+
+// 회원 목록 로드
+async function loadUsers() {
+  const loadingEl = document.getElementById("loadingUsers");
+  const tableEl = document.getElementById("usersTable");
+  const noUsersEl = document.getElementById("noUsers");
+  const totalUsersEl = document.getElementById("totalUsers");
+
+  try {
+    console.log("👥 회원 목록 로드 중...");
+
+    if (loadingEl) loadingEl.classList.remove("hidden");
+    if (tableEl) tableEl.classList.add("hidden");
+    if (noUsersEl) noUsersEl.classList.add("hidden");
+
+    // Firestore에서 users 컬렉션 읽기
+    const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
+    const snapshot = await getDocs(q);
+
+    allUsers = snapshot.docs.map((doc) => ({
+      uid: doc.id,
+      ...doc.data(),
+    }));
+
+    filteredUsers = [...allUsers];
+
+    console.log(`✅ ${allUsers.length}명의 회원 로드 완료`);
+
+    if (totalUsersEl) totalUsersEl.textContent = allUsers.length;
+
+    if (loadingEl) loadingEl.classList.add("hidden");
+
+    if (allUsers.length === 0) {
+      if (noUsersEl) noUsersEl.classList.remove("hidden");
+    } else {
+      if (tableEl) tableEl.classList.remove("hidden");
+      renderUsers();
+    }
+  } catch (error) {
+    console.error("❌ 회원 로드 실패:", error);
+    if (loadingEl) loadingEl.classList.add("hidden");
+    alert("회원 목록을 불러오는 중 오류가 발생했습니다: " + error.message);
+  }
+}
+
+// 회원 목록 렌더링
+function renderUsers() {
+  const tbody = document.getElementById("usersBody");
+  if (!tbody) return;
+
+  if (filteredUsers.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center py-8 text-slate-500">
+          검색 결과가 없습니다.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = filteredUsers
+    .map((user) => {
+      const createdAt = user.createdAt?.toDate
+        ? user.createdAt.toDate().toLocaleString("ko-KR")
+        : "-";
+      const lastLoginAt = user.lastLoginAt?.toDate
+        ? user.lastLoginAt.toDate().toLocaleString("ko-KR")
+        : "-";
+      const role = user.role || "user";
+      const roleText = role === "admin" ? "관리자" : "일반회원";
+      const roleBadgeClass =
+        role === "admin"
+          ? "bg-red-100 text-red-700"
+          : "bg-blue-100 text-blue-700";
+
+      return `
+        <tr class="border-b hover:bg-slate-50">
+          <td class="px-3 py-3">${user.email || "-"}</td>
+          <td class="px-3 py-3">
+            <span class="px-2 py-1 rounded text-xs font-semibold ${roleBadgeClass}">
+              ${roleText}
+            </span>
+          </td>
+          <td class="px-3 py-3 text-xs text-slate-600">${createdAt}</td>
+          <td class="px-3 py-3 text-xs text-slate-600">${lastLoginAt}</td>
+          <td class="px-3 py-3 text-center">
+            <button
+              onclick="toggleUserRole('${user.uid}', '${role}')"
+              class="px-3 py-1 bg-slate-200 hover:bg-slate-300 rounded text-xs transition"
+              title="역할 변경"
+            >
+              <i class="fas fa-user-cog"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
+}
+
+// 회원 역할 토글
+window.toggleUserRole = async function (uid, currentRole) {
+  const newRole = currentRole === "admin" ? "user" : "admin";
+  const confirmMsg = `이 회원을 ${newRole === "admin" ? "관리자" : "일반회원"}로 변경하시겠습니까?`;
+
+  if (!confirm(confirmMsg)) return;
+
+  try {
+    await updateDoc(doc(db, "users", uid), {
+      role: newRole,
+      updatedAt: serverTimestamp(),
+    });
+
+    console.log(`✅ 역할 변경 완료: ${currentRole} → ${newRole}`);
+    alert("역할이 변경되었습니다.");
+    loadUsers();
+  } catch (error) {
+    console.error("❌ 역할 변경 실패:", error);
+    alert("역할 변경 중 오류가 발생했습니다: " + error.message);
+  }
+};
+
+// 회원 필터링
+function filterUsers() {
+  const roleFilter = document.getElementById("filterUserRole")?.value || "";
+  const emailSearch = document.getElementById("searchUserEmail")?.value.toLowerCase() || "";
+
+  filteredUsers = allUsers.filter((user) => {
+    const matchesRole = !roleFilter || user.role === roleFilter;
+    const matchesEmail = !emailSearch || user.email?.toLowerCase().includes(emailSearch);
+    return matchesRole && matchesEmail;
+  });
+
+  renderUsers();
+}
+
+// 필터 이벤트 리스너
+const filterUserRoleEl = document.getElementById("filterUserRole");
+const searchUserEmailEl = document.getElementById("searchUserEmail");
+const refreshUsersBtn = document.getElementById("refreshUsers");
+
+if (filterUserRoleEl) {
+  filterUserRoleEl.addEventListener("change", filterUsers);
+}
+
+if (searchUserEmailEl) {
+  searchUserEmailEl.addEventListener("input", filterUsers);
+}
+
+if (refreshUsersBtn) {
+  refreshUsersBtn.addEventListener("click", loadUsers);
+}

@@ -79,6 +79,12 @@
           >
             <i class="fas fa-envelope mr-2"></i>의뢰 내역
           </button>
+          <button
+            data-tab="users"
+            class="tab-btn px-6 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap bg-slate-200 text-slate-700 hover:bg-slate-300"
+          >
+            <i class="fas fa-users mr-2"></i>회원 관리
+          </button>
         </div>
       </div>
     </div>
@@ -377,6 +383,71 @@
           <div id="loadingInquiries" class="text-center py-8 text-slate-500">
             <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
             <p>로딩 중...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탭 5: 회원 관리 -->
+      <section id="tab-users" class="tab-content hidden">
+        <div class="bg-white border rounded-2xl shadow p-5">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-semibold">
+              <i class="fas fa-users mr-2"></i>회원 목록
+            </h2>
+            <div class="flex items-center gap-3">
+              <span class="text-sm text-slate-600">
+                총 <strong id="totalUsers">0</strong>명
+              </span>
+              <button
+                id="refreshUsers"
+                class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition text-sm font-semibold"
+              >
+                <i class="fas fa-sync-alt mr-1"></i>새로고침
+              </button>
+            </div>
+          </div>
+
+          <!-- 필터 -->
+          <div class="flex gap-3 mb-4">
+            <select
+              id="filterUserRole"
+              class="border rounded-lg px-3 py-2"
+            >
+              <option value="">전체 역할</option>
+              <option value="admin">관리자</option>
+              <option value="user">일반회원</option>
+            </select>
+            <input
+              id="searchUserEmail"
+              type="text"
+              placeholder="이메일 검색"
+              class="border rounded-lg px-3 py-2 flex-1"
+            />
+          </div>
+
+          <div id="usersTable" class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-100 border-b">
+                <tr>
+                  <th class="px-3 py-3 text-left">이메일</th>
+                  <th class="px-3 py-3 text-left">역할</th>
+                  <th class="px-3 py-3 text-left">가입일</th>
+                  <th class="px-3 py-3 text-left">마지막 로그인</th>
+                  <th class="px-3 py-3 text-center">작업</th>
+                </tr>
+              </thead>
+              <tbody id="usersBody"></tbody>
+            </table>
+          </div>
+
+          <div id="loadingUsers" class="text-center py-8 text-slate-500">
+            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+            <p>로딩 중...</p>
+          </div>
+
+          <div id="noUsers" class="hidden text-center py-8 text-slate-500">
+            <i class="fas fa-user-slash text-4xl mb-2"></i>
+            <p>등록된 회원이 없습니다.</p>
           </div>
         </div>
       </section>

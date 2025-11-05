@@ -26,6 +26,129 @@ const db = getFirestore(app);
 
 let raw = [];
 
+// 최근 본 매물 관리
+const RECENT_LISTINGS_KEY = "recentListings";
+const MAX_RECENT_ITEMS = 10;
+
+function getRecentListings() {
+  try {
+    const stored = localStorage.getItem(RECENT_LISTINGS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error("최근 본 매물 로드 실패:", error);
+    return [];
+  }
+}
+
+function saveRecentListing(listing) {
+  try {
+    let recent = getRecentListings();
+    
+    // 이미 존재하는 항목 제거 (중복 방지)
+    recent = recent.filter(item => item.id !== listing.id);
+    
+    // 맨 앞에 추가
+    recent.unshift({
+      id: listing.id,
+      title: listing.title,
+      dealType: listing.dealType,
+      price: listing.price,
+      deposit: listing.deposit,
+      rent: listing.rent,
+      region: listing.region,
+      sizePyeong: listing.sizePyeong,
+      floor: listing.floor,
+      images: listing.images,
+      timestamp: Date.now()
+    });
+    
+    // 최대 개수 제한
+    recent = recent.slice(0, MAX_RECENT_ITEMS);
+    
+    localStorage.setItem(RECENT_LISTINGS_KEY, JSON.stringify(recent));
+    renderRecentListings();
+  } catch (error) {
+    console.error("최근 본 매물 저장 실패:", error);
+  }
+}
+
+function clearRecentListings() {
+  try {
+    localStorage.removeItem(RECENT_LISTINGS_KEY);
+    renderRecentListings();
+  } catch (error) {
+    console.error("최근 본 매물 삭제 실패:", error);
+  }
+}
+
+function renderRecentListings() {
+  const container = qs("#recentListingsContainer");
+  const mobileContainer = qs("#mobileRecentListingsContainer");
+  const recentCountBadge = qs("#recentCount");
+  
+  const recent = getRecentListings();
+  
+  // 카운트 배지 업데이트
+  if (recentCountBadge) {
+    if (recent.length > 0) {
+      recentCountBadge.textContent = recent.length;
+      recentCountBadge.classList.remove("hidden");
+    } else {
+      recentCountBadge.classList.add("hidden");
+    }
+  }
+  
+  const emptyHTML = `
+    <div class="p-8 text-center">
+      <i class="fas fa-eye-slash text-4xl text-slate-300 mb-3"></i>
+      <p class="text-slate-500 text-sm">최근 본 매물이 없습니다</p>
+      <p class="text-slate-400 text-xs mt-1">매물을 클릭하면 여기에 표시됩니다</p>
+    </div>
+  `;
+  
+  const html = recent.length === 0 ? emptyHTML : recent.map(item => `
+    <a href="/listing.html?id=${item.id}" class="block p-3 hover:bg-slate-50 transition-colors">
+      <div class="flex gap-3">
+        <img 
+          src="${item.images?.[0] || "/assets/placeholder.jpg"}" 
+          alt="${item.title}"
+          class="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+          loading="lazy"
+        />
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <span class="text-xs font-semibold text-navy-900 bg-slate-100 px-2 py-0.5 rounded">
+              ${item.dealType}
+            </span>
+          </div>
+          <h3 class="text-sm font-semibold text-slate-900 line-clamp-2 mb-1">
+            ${item.title}
+          </h3>
+          <p class="text-xs font-bold text-navy-900 mb-1">
+            ${item.price 
+              ? fmt.price(item.price) 
+              : `${fmt.price(item.deposit)} / ${fmt.price(item.rent)}`
+            }
+          </p>
+          <p class="text-xs text-slate-500">
+            ${item.region} · ${fmt.pyeong(item.sizePyeong)}
+          </p>
+        </div>
+      </div>
+    </a>
+  `).join("");
+  
+  // 데스크탑 사이드바 업데이트
+  if (container) {
+    container.innerHTML = html;
+  }
+  
+  // 모바일 드로어 업데이트
+  if (mobileContainer) {
+    mobileContainer.innerHTML = html;
+  }
+}
+
 async function load() {
   try {
     console.log("🔥 Firebase에서 매물 로드 중...");
@@ -53,6 +176,7 @@ async function load() {
 
     bindUI();
     render();
+    renderRecentListings(); // 최근 본 매물 렌더링
   } catch (error) {
     console.error("❌ 매물 로드 실패:", error);
 
@@ -282,6 +406,116 @@ function bindUI() {
       }
     })
   );
+
+  // 최근 본 매물 전체 삭제 (데스크탑)
+  const clearBtn = qs("#clearRecentListings");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); // 헤더 클릭 이벤트 방지
+      if (confirm("최근 본 매물을 모두 삭제하시겠습니까?")) {
+        clearRecentListings();
+      }
+    });
+  }
+
+  // 최근 본 매물 토글 (접기/펼치기)
+  const toggleBtn = qs("#toggleRecentListings");
+  const recentContent = qs("#recentListingsContent");
+  const recentHeader = qs("#recentHeader");
+  let isExpanded = true; // 초기 상태: 펼쳐짐
+
+  function toggleRecentListings() {
+    if (!recentContent || !toggleBtn) return;
+
+    isExpanded = !isExpanded;
+    const icon = toggleBtn.querySelector("i");
+
+    if (isExpanded) {
+      // 펼치기
+      recentContent.style.maxHeight = "calc(100vh - 10rem)";
+      recentContent.style.opacity = "1";
+      if (icon) {
+        icon.className = "fas fa-chevron-up text-lg";
+      }
+    } else {
+      // 접기
+      recentContent.style.maxHeight = "0";
+      recentContent.style.opacity = "0";
+      if (icon) {
+        icon.className = "fas fa-chevron-down text-lg";
+      }
+    }
+  }
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); // 헤더 클릭 이벤트 방지
+      toggleRecentListings();
+    });
+  }
+
+  // 헤더 전체 클릭 시에도 토글
+  if (recentHeader) {
+    recentHeader.addEventListener("click", (e) => {
+      // 버튼이 아닌 헤더 영역 클릭 시에만 토글
+      if (e.target === recentHeader || e.target.closest("h2") || e.target.closest(".fa-clock-rotate-left")) {
+        toggleRecentListings();
+      }
+    });
+  }
+
+  // 최근 본 매물 전체 삭제 (모바일)
+  const clearMobileBtn = qs("#clearMobileRecentListings");
+  if (clearMobileBtn) {
+    clearMobileBtn.addEventListener("click", () => {
+      if (confirm("최근 본 매물을 모두 삭제하시겠습니까?")) {
+        clearRecentListings();
+      }
+    });
+  }
+
+  // 모바일 최근 본 매물 드로어
+  const mobileRecentBtn = qs("#mobileRecentBtn");
+  const mobileDrawer = qs("#mobileRecentDrawer");
+  const drawerContent = qs("#drawerContent");
+  const closeDrawerBtn = qs("#closeMobileDrawer");
+
+  function openMobileDrawer() {
+    if (mobileDrawer && drawerContent) {
+      mobileDrawer.classList.remove("hidden");
+      setTimeout(() => {
+        drawerContent.classList.remove("translate-x-full");
+      }, 10);
+      document.body.style.overflow = "hidden";
+    }
+  }
+
+  function closeMobileDrawer() {
+    if (mobileDrawer && drawerContent) {
+      drawerContent.classList.add("translate-x-full");
+      setTimeout(() => {
+        mobileDrawer.classList.add("hidden");
+        document.body.style.overflow = "";
+      }, 300);
+    }
+  }
+
+  if (mobileRecentBtn) {
+    mobileRecentBtn.addEventListener("click", openMobileDrawer);
+  }
+
+  if (closeDrawerBtn) {
+    closeDrawerBtn.addEventListener("click", closeMobileDrawer);
+  }
+
+  if (mobileDrawer) {
+    // 배경 클릭 시 닫기
+    mobileDrawer.addEventListener("click", (e) => {
+      if (e.target === mobileDrawer) {
+        closeMobileDrawer();
+      }
+    });
+  }
 }
 
 function render() {
@@ -325,7 +559,7 @@ function render() {
   const html = pageList
     .map(
       (it) => `
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg scale-100 hover:scale-[1.01] transition-all duration-200 ease-out overflow-hidden">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg scale-100 hover:scale-[1.01] transition-all duration-200 ease-out overflow-hidden" data-listing-id="${it.id}">
       <!-- 이미지 영역 -->
       <div class="relative">
         <img 
@@ -370,7 +604,7 @@ function render() {
       <div class="border-t border-slate-200 p-3 flex gap-2">
         <a 
           href="/listing.html?id=${it.id}" 
-          class="flex-1 text-center py-2 px-3 bg-navy-900 text-white rounded-xl hover:bg-navy-800 transition-colors text-sm font-semibold"
+          class="listing-detail-link flex-1 text-center py-2 px-3 bg-navy-900 text-white rounded-xl hover:bg-navy-800 transition-colors text-sm font-semibold"
           aria-label="${it.title} 상세보기"
         >
           상세보기
@@ -398,6 +632,20 @@ function render() {
     )
     .join("");
   qs("#grid").innerHTML = html;
+
+  // 매물 클릭 이벤트 등록 (최근 본 매물 저장)
+  qsa(".listing-detail-link").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      const card = e.target.closest("[data-listing-id]");
+      if (card) {
+        const listingId = card.dataset.listingId;
+        const listing = pageList.find((it) => it.id === listingId);
+        if (listing) {
+          saveRecentListing(listing);
+        }
+      }
+    });
+  });
 }
 
 load();

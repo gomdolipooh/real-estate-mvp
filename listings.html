@@ -169,9 +169,12 @@
       </div>
     </section>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <!-- 거래유형 탭 -->
-      <div class="flex items-center gap-3 mb-8 overflow-x-auto pb-4">
+    <main class="py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- 메인 콘텐츠 -->
+        <div class="xl:mr-80">
+          <!-- 거래유형 탭 -->
+          <div class="flex items-center gap-3 mb-8 overflow-x-auto pb-4">
         <button
           data-deal="전체"
           class="px-8 py-3 bg-navy-900 text-white rounded-2xl font-bold text-sm shadow-lg shadow-navy-900/20 hover:shadow-xl hover:shadow-navy-900/30 transition-all whitespace-nowrap"
@@ -279,6 +282,104 @@
 
       <!-- 페이지네이션 -->
       <div id="pagination" class="flex justify-center gap-2"></div>
+        </div>
+      </div>
+
+      <!-- 최근 본 매물 사이드바 (화면 오른쪽에 고정) -->
+      <aside class="hidden xl:block fixed top-24 right-0 w-80 z-30" id="recentSidebar">
+        <div class="bg-white rounded-l-2xl border-l border-t border-b border-slate-200 shadow-xl overflow-hidden">
+          <!-- 헤더 (항상 보임) -->
+          <div class="bg-gradient-to-r from-navy-900 to-slate-800 text-white px-5 py-4 flex items-center justify-between cursor-pointer" id="recentHeader">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-clock-rotate-left"></i>
+              <h2 class="font-bold text-base">최근 본 매물</h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <button 
+                id="clearRecentListings" 
+                class="text-white/70 hover:text-white text-xs transition-colors mr-2"
+                title="전체 삭제"
+              >
+                전체삭제
+              </button>
+              <button 
+                id="toggleRecentListings" 
+                class="text-white/70 hover:text-white transition-colors"
+                title="접기/펼치기"
+              >
+                <i class="fas fa-chevron-up text-lg"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 최근 본 매물 목록 (토글 가능) -->
+          <div id="recentListingsContent" class="max-h-[calc(100vh-10rem)] overflow-y-auto transition-all duration-300">
+            <div id="recentListingsContainer" class="divide-y divide-slate-100">
+              <!-- 빈 상태 -->
+              <div id="emptyRecentState" class="p-8 text-center">
+                <i class="fas fa-eye-slash text-4xl text-slate-300 mb-3"></i>
+                <p class="text-slate-500 text-sm">최근 본 매물이 없습니다</p>
+                <p class="text-slate-400 text-xs mt-1">매물을 클릭하면 여기에 표시됩니다</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 모바일 최근 본 매물 버튼 (xl 미만 화면에서만 표시) -->
+      <button 
+        id="mobileRecentBtn" 
+        class="xl:hidden fixed bottom-6 right-6 w-14 h-14 bg-navy-900 text-white rounded-full shadow-lg hover:bg-navy-800 transition-all z-40 flex items-center justify-center"
+        aria-label="최근 본 매물"
+      >
+        <i class="fas fa-clock-rotate-left text-xl"></i>
+        <span id="recentCount" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center hidden">0</span>
+      </button>
+
+      <!-- 모바일 최근 본 매물 드로어 -->
+      <div 
+        id="mobileRecentDrawer" 
+        class="xl:hidden fixed inset-0 bg-black/50 z-50 hidden"
+      >
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white shadow-2xl transform translate-x-full transition-transform duration-300" id="drawerContent">
+          <!-- 드로어 헤더 -->
+          <div class="bg-gradient-to-r from-navy-900 to-slate-800 text-white px-5 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-clock-rotate-left"></i>
+              <h2 class="font-bold text-base">최근 본 매물</h2>
+            </div>
+            <button 
+              id="closeMobileDrawer" 
+              class="text-white/70 hover:text-white transition-colors"
+              aria-label="닫기"
+            >
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+
+          <!-- 드로어 내용 -->
+          <div class="overflow-y-auto h-[calc(100vh-64px)]">
+            <div id="mobileRecentListingsContainer" class="divide-y divide-slate-100">
+              <!-- 빈 상태 -->
+              <div class="p-8 text-center">
+                <i class="fas fa-eye-slash text-4xl text-slate-300 mb-3"></i>
+                <p class="text-slate-500 text-sm">최근 본 매물이 없습니다</p>
+                <p class="text-slate-400 text-xs mt-1">매물을 클릭하면 여기에 표시됩니다</p>
+              </div>
+            </div>
+
+            <!-- 전체 삭제 버튼 -->
+            <div class="p-4 border-t border-slate-200">
+              <button 
+                id="clearMobileRecentListings" 
+                class="w-full px-4 py-3 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-semibold text-sm"
+              >
+                전체 삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <footer class="bg-white border-t border-slate-200 mt-16">
