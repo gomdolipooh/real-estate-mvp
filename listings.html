@@ -25,9 +25,53 @@
     />
   </head>
   <body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+    <!-- 상단 유틸리티 바 -->
+    <div class="sticky top-0 z-50 bg-slate-900 text-white text-xs border-b border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 h-9 flex items-center justify-between">
+        <!-- 왼쪽: 즐겨찾기 등 -->
+        <div class="flex items-center gap-4">
+          <button class="hover:text-slate-300 transition-colors">
+            <i class="fa fa-bookmark mr-1"></i>즐겨찾기
+          </button>
+        </div>
+
+        <!-- 오른쪽: 로그인/회원가입/마이페이지 -->
+        <div class="flex items-center gap-4">
+          <!-- 로그인 전 -->
+          <div id="topAuthButtons" class="flex items-center gap-4">
+            <button id="topLoginBtn" class="hover:text-slate-300 transition-colors">
+              로그인
+            </button>
+            <button id="topSignupBtn" class="hover:text-slate-300 transition-colors">
+              회원가입
+            </button>
+          </div>
+
+          <!-- 로그인 후 -->
+          <div id="topUserInfo" class="hidden flex items-center gap-4">
+            <span id="topUserEmail" class="text-slate-300"></span>
+            <div class="relative group">
+              <button class="hover:text-slate-300 transition-colors flex items-center gap-1">
+                <i class="fa fa-user mr-1"></i>마이페이지
+                <i class="fa fa-caret-down ml-1"></i>
+              </button>
+              <div class="absolute right-0 top-full mt-1 bg-white text-slate-900 rounded-lg shadow-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all w-40">
+                <a href="/favorites.html" class="block px-4 py-2 hover:bg-slate-100 transition-colors">
+                  <i class="fa fa-heart mr-2"></i>찜 매물
+                </a>
+                <button id="topLogoutBtn" class="block w-full text-left px-4 py-2 hover:bg-slate-100 transition-colors border-t">
+                  <i class="fa fa-sign-out-alt mr-2"></i>로그아웃
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Sticky Header -->
     <header
-      class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200"
+      class="sticky top-9 z-40 bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200"
     >
       <div class="max-w-7xl mx-auto px-4">
         <div class="flex items-center justify-between h-20">
@@ -172,7 +216,7 @@
     <main class="py-12">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 메인 콘텐츠 -->
-        <div class="xl:mr-80">
+        <div>
           <!-- 거래유형 탭 -->
           <div class="flex items-center gap-3 mb-8 overflow-x-auto pb-4">
         <button
@@ -286,7 +330,7 @@
       </div>
 
       <!-- 최근 본 매물 사이드바 (화면 오른쪽에 고정) -->
-      <aside class="hidden xl:block fixed top-24 right-0 w-80 z-30" id="recentSidebar">
+      <aside class="hidden fixed top-[116px] right-0 w-80 z-30" id="recentSidebar">
         <div class="bg-white rounded-l-2xl border-l border-t border-b border-slate-200 shadow-xl overflow-hidden">
           <!-- 헤더 (항상 보임) -->
           <div class="bg-gradient-to-r from-navy-900 to-slate-800 text-white px-5 py-4 flex items-center justify-between cursor-pointer" id="recentHeader">
@@ -313,7 +357,7 @@
           </div>
 
           <!-- 최근 본 매물 목록 (토글 가능) -->
-          <div id="recentListingsContent" class="max-h-[calc(100vh-10rem)] overflow-y-auto transition-all duration-300">
+          <div id="recentListingsContent" class="max-h-[calc(100vh-13rem)] overflow-y-auto transition-all duration-300">
             <div id="recentListingsContainer" class="divide-y divide-slate-100">
               <!-- 빈 상태 -->
               <div id="emptyRecentState" class="p-8 text-center">
@@ -326,10 +370,10 @@
         </div>
       </aside>
 
-      <!-- 모바일 최근 본 매물 버튼 (xl 미만 화면에서만 표시) -->
+      <!-- 모바일 최근 본 매물 버튼 -->
       <button 
         id="mobileRecentBtn" 
-        class="xl:hidden fixed bottom-6 right-6 w-14 h-14 bg-navy-900 text-white rounded-full shadow-lg hover:bg-navy-800 transition-all z-40 flex items-center justify-center"
+        class="fixed bottom-6 right-6 w-14 h-14 bg-navy-900 text-white rounded-full shadow-lg hover:bg-navy-800 transition-all z-40 flex items-center justify-center"
         aria-label="최근 본 매물"
       >
         <i class="fas fa-clock-rotate-left text-xl"></i>
@@ -381,6 +425,116 @@
         </div>
       </div>
     </main>
+
+    <!-- 로그인 모달 -->
+    <div id="loginModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-slate-900">로그인</h2>
+          <button id="closeLoginModal" class="text-slate-400 hover:text-slate-600 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="space-y-4">
+          <div>
+            <label for="loginEmail" class="block text-sm font-semibold text-slate-700 mb-2">이메일</label>
+            <input
+              id="loginEmail"
+              type="email"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none"
+              placeholder="example@email.com"
+            />
+          </div>
+          
+          <div>
+            <label for="loginPassword" class="block text-sm font-semibold text-slate-700 mb-2">비밀번호</label>
+            <input
+              id="loginPassword"
+              type="password"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none"
+              placeholder="••••••••"
+            />
+          </div>
+          
+          <button
+            id="loginSubmitBtn"
+            class="w-full py-3 bg-navy-900 text-white font-semibold rounded-xl hover:bg-navy-800 transition-all"
+          >
+            로그인
+          </button>
+          
+          <p id="loginMsg" class="text-sm text-red-600 text-center"></p>
+          
+          <p class="text-center text-sm text-slate-600">
+            계정이 없으신가요?
+            <button id="switchToSignup" class="text-navy-900 font-semibold hover:underline">
+              회원가입
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 회원가입 모달 -->
+    <div id="signupModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-slate-900">회원가입</h2>
+          <button id="closeSignupModal" class="text-slate-400 hover:text-slate-600 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="space-y-4">
+          <div>
+            <label for="signupEmail" class="block text-sm font-semibold text-slate-700 mb-2">이메일</label>
+            <input
+              id="signupEmail"
+              type="email"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none"
+              placeholder="example@email.com"
+            />
+          </div>
+          
+          <div>
+            <label for="signupPassword" class="block text-sm font-semibold text-slate-700 mb-2">비밀번호</label>
+            <input
+              id="signupPassword"
+              type="password"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none"
+              placeholder="최소 6자 이상"
+            />
+          </div>
+          
+          <div>
+            <label for="signupPasswordConfirm" class="block text-sm font-semibold text-slate-700 mb-2">비밀번호 확인</label>
+            <input
+              id="signupPasswordConfirm"
+              type="password"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-navy-900 focus:border-navy-900 outline-none"
+              placeholder="비밀번호 재입력"
+            />
+          </div>
+          
+          <button
+            id="signupSubmitBtn"
+            class="w-full py-3 bg-navy-900 text-white font-semibold rounded-xl hover:bg-navy-800 transition-all"
+          >
+            회원가입
+          </button>
+          
+          <p id="signupMsg" class="text-sm text-red-600 text-center"></p>
+          
+          <p class="text-center text-sm text-slate-600">
+            이미 계정이 있으신가요?
+            <button id="switchToLogin" class="text-navy-900 font-semibold hover:underline">
+              로그인
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
 
     <footer class="bg-white border-t border-slate-200 mt-16">
       <div class="max-w-7xl mx-auto px-4 py-12">

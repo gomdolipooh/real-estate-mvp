@@ -1,0 +1,53 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // listings 컬렉션 (매물)
+    match /listings/{listingId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // filterOptions 컬렉션 (필터 옵션)
+    match /filterOptions/{optionId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // inquiries 컬렉션 (의뢰)
+    match /inquiries/{inquiryId} {
+      allow read: if request.auth != null;
+      allow create: if true;
+      allow update, delete: if request.auth != null;
+    }
+    
+    // favorites 컬렉션 (찜한 매물) ← 새로 추가!
+    match /favorites/{favoriteId} {
+      // 임시: 개발용 - 로그인한 사용자는 모두 읽기 가능
+      allow read: if request.auth != null;
+      // 찜하기: 로그인한 사용자만 자신의 것 생성 가능
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      // 찜 해제: 로그인한 사용자만 삭제 가능
+      allow delete: if request.auth != null;
+    }
+    
+    // test 컬렉션
+    match /test/{testId} {
+      allow read, write: if true;
+    }
+    
+    // users 컬렉션: 본인 정보만 읽기/쓰기 가능
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // admin만 전체 users 읽기 가능
+    match /users/{userId} {
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}
+

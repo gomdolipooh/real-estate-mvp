@@ -5,7 +5,18 @@ import {
   getFirestore,
   doc,
   getDoc,
+  collection,
+  getDocs,
+  deleteDoc,
+  serverTimestamp,
+  query,
+  where,
+  addDoc,
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
 // Firebase 설정
 const firebaseConfig = {
@@ -20,10 +31,14 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 // 최근 본 매물 관리
 const RECENT_LISTINGS_KEY = "recentListings";
 const MAX_RECENT_ITEMS = 10;
+let currentUser = null;
+let userFavorites = new Set();
+let currentListingId = null;
 
 function saveRecentListing(listing) {
   try {
@@ -133,6 +148,23 @@ async function load() {
       </div>
     `;
 
+    currentListingId = it.id;
+    
+    // 찜하기 버튼 HTML
+    const isFavorited = userFavorites.has(it.id);
+    const heartIcon = isFavorited ? "fas fa-heart" : "far fa-heart";
+    const heartText = isFavorited ? "찜 해제" : "찜하기";
+    const heartColor = isFavorited ? "bg-red-500 hover:bg-red-600" : "bg-slate-200 hover:bg-slate-300 text-slate-700";
+    const favoriteButton = currentUser ? `
+      <button 
+        id="favoriteBtn"
+        onclick="toggleFavorite('${it.id}')"
+        data-favorite-id="${it.id}"
+        class="cta ${heartColor}"
+      >
+        <i class="${heartIcon} mr-1"></i>${heartText}
+      </button>` : '';
+    
     qs("#detail").innerHTML = `
       ${galleryHTML}
       <div class="info">
@@ -146,6 +178,7 @@ async function load() {
             : `보증금 ${fmt.price(it.deposit)} / 월세 ${fmt.price(it.rent)}`
         }</p>
         <div class="contact">
+          ${favoriteButton}
           <a class="cta" href="tel:0328125001">전화문의</a>
           <a class="cta" href="https://pf.kakao.com/_channelId" target="_blank">카카오톡</a>
           <a class="cta" href="mailto:vs1705@daum.net?subject=${encodeURIComponent(
@@ -273,5 +306,120 @@ function initGallery(images) {
   //   if (el) el.addEventListener('click', () => clearInterval(autoSlideInterval));
   // });
 }
+
+// ==================== 찜하기 기능 ====================
+
+// 사용자의 찜한 매물 로드
+async function loadUserFavorites() {
+  if (!currentUser) return;
+
+  try {
+    const favoritesSnap = await getDocs(
+      query(collection(db, "favorites"), where("userId", "==", currentUser.uid))
+    );
+
+    userFavorites.clear();
+    favoritesSnap.docs.forEach((doc) => {
+      userFavorites.add(doc.data().listingId);
+    });
+
+    console.log(`💝 찜한 매물 ${userFavorites.size}개 로드`);
+  } catch (error) {
+    console.error("찜한 매물 로드 실패:", error);
+  }
+}
+
+// 찜하기 토글
+window.toggleFavorite = async function (listingId) {
+  console.log("❤️ toggleFavorite 호출됨:", listingId);
+  
+  if (!currentUser) {
+    alert("로그인이 필요합니다.");
+    return;
+  }
+
+  try {
+    if (userFavorites.has(listingId)) {
+      // 찜 해제
+      console.log("💔 찜 해제 시작...");
+      const favoritesSnap = await getDocs(
+        query(
+          collection(db, "favorites"),
+          where("userId", "==", currentUser.uid),
+          where("listingId", "==", listingId)
+        )
+      );
+
+      for (const doc of favoritesSnap.docs) {
+        await deleteDoc(doc.ref);
+      }
+
+      userFavorites.delete(listingId);
+      console.log("✅ 찜 해제 완료:", listingId);
+    } else {
+      // 찜하기
+      console.log("💝 찜하기 시작...");
+      await addDoc(collection(db, "favorites"), {
+        userId: currentUser.uid,
+        listingId: listingId,
+        createdAt: serverTimestamp(),
+      });
+
+      userFavorites.add(listingId);
+      console.log("✅ 찜하기 완료:", listingId);
+    }
+
+    // UI 업데이트
+    updateFavoriteButton(listingId);
+  } catch (error) {
+    console.error("❌ 찜하기 처리 실패:", error);
+    alert("찜하기 처리 중 오류가 발생했습니다: " + error.message);
+  }
+};
+
+// 찜하기 버튼 UI 업데이트
+function updateFavoriteButton(listingId) {
+  const btn = qs("#favoriteBtn");
+  if (!btn) {
+    console.warn("찜하기 버튼을 찾을 수 없습니다");
+    return;
+  }
+
+  if (userFavorites.has(listingId)) {
+    // 찜한 상태
+    btn.classList.remove("bg-slate-200", "hover:bg-slate-300", "text-slate-700");
+    btn.classList.add("bg-red-500", "hover:bg-red-600", "text-white");
+    btn.innerHTML = '<i class="fas fa-heart mr-1"></i>찜 해제';
+    btn.title = "찜 해제";
+    console.log("💝 UI 업데이트: 찜한 상태");
+  } else {
+    // 찜 안한 상태
+    btn.classList.remove("bg-red-500", "hover:bg-red-600", "text-white");
+    btn.classList.add("bg-slate-200", "hover:bg-slate-300", "text-slate-700");
+    btn.innerHTML = '<i class="far fa-heart mr-1"></i>찜하기';
+    btn.title = "찜하기";
+    console.log("💔 UI 업데이트: 찜 안한 상태");
+  }
+}
+
+// 인증 상태 확인
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    console.log("✅ 로그인 상태:", user.email);
+    
+    // 찜한 매물 로드
+    await loadUserFavorites();
+    
+    // 현재 매물이 로드되어 있으면 버튼 다시 렌더링
+    if (currentListingId) {
+      load(); // 페이지 다시 로드하여 찜하기 버튼 표시
+    }
+  } else {
+    currentUser = null;
+    userFavorites.clear();
+    console.log("❌ 로그아웃 상태");
+  }
+});
 
 load();

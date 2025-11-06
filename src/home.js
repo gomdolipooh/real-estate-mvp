@@ -10,7 +10,11 @@ import {
   doc,
   setDoc,
   updateDoc,
+  deleteDoc,
   serverTimestamp,
+  query,
+  where,
+  addDoc,
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import {
   getAuth,
@@ -41,11 +45,32 @@ const ADMIN_EMAILS = ["admin@vision.com", "vs1705@daum.net"];
 // 최근 본 매물 관리
 const RECENT_LISTINGS_KEY = "recentListings";
 const MAX_RECENT_ITEMS = 10;
+let currentUser = null;
+let userFavorites = new Set(); // 사용자의 찜한 매물 ID 목록
 
 function getRecentListings() {
+  const storageKey = currentUser 
+    ? RECENT_LISTINGS_KEY + "_" + currentUser.uid 
+    : RECENT_LISTINGS_KEY + "_guest";
+  
   try {
-    const stored = localStorage.getItem(RECENT_LISTINGS_KEY);
-    return stored ? JSON.parse(stored) : [];
+    const stored = localStorage.getItem(storageKey);
+    if (!stored) return [];
+    
+    const items = JSON.parse(stored);
+    const now = Date.now();
+    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+    
+    // 30일 이상 지난 항목 자동 삭제
+    const filtered = items.filter(item => {
+      return (now - item.timestamp) < THIRTY_DAYS;
+    });
+    
+    if (filtered.length !== items.length) {
+      localStorage.setItem(storageKey, JSON.stringify(filtered));
+    }
+    
+    return filtered;
   } catch (error) {
     console.error("최근 본 매물 로드 실패:", error);
     return [];
@@ -53,8 +78,12 @@ function getRecentListings() {
 }
 
 function clearRecentListings() {
+  const storageKey = currentUser 
+    ? RECENT_LISTINGS_KEY + "_" + currentUser.uid 
+    : RECENT_LISTINGS_KEY + "_guest";
+  
   try {
-    localStorage.removeItem(RECENT_LISTINGS_KEY);
+    localStorage.removeItem(storageKey);
     renderRecentListings();
   } catch (error) {
     console.error("최근 본 매물 삭제 실패:", error);
@@ -193,6 +222,20 @@ function createListingCard(listing, colorTheme = null) {
   const btnClass = colorTheme ? colorTheme.btn : 'bg-navy-900 hover:bg-navy-800';
   const hoverBorderClass = colorTheme ? colorTheme.hover : 'hover:border-slate-300';
 
+  // 찜하기 버튼 (로그인한 상태에서만)
+  const isFavorited = userFavorites.has(listing.id);
+  const heartIcon = isFavorited ? "fas fa-heart" : "far fa-heart";
+  const heartColor = isFavorited ? "text-red-500" : "text-slate-400 hover:text-red-500";
+  const favoriteButton = currentUser ? `
+    <button 
+      onclick="toggleFavorite('${listing.id}')"
+      data-favorite-id="${listing.id}"
+      class="absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm ${heartColor} rounded-full hover:bg-white transition-all shadow-md"
+      title="${isFavorited ? '찜 해제' : '찜하기'}"
+    >
+      <i class="${heartIcon}"></i>
+    </button>` : '';
+
   return `
     <article class="group bg-white rounded-2xl ${borderClass} ${hoverBorderClass} shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
       <div class="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 relative overflow-hidden">
@@ -202,6 +245,7 @@ function createListingCard(listing, colorTheme = null) {
             ${listing.dealType || "문의"}
           </span>
         </div>
+        ${favoriteButton}
       </div>
       <div class="p-5">
         <h4 class="font-bold text-lg text-slate-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors">
@@ -693,28 +737,28 @@ const recentContent = qs("#recentListingsContent");
 const recentHeader = qs("#recentHeader");
 let isExpanded = true; // 초기 상태: 펼쳐짐
 
-function toggleRecentListings() {
-  if (!recentContent || !toggleBtn) return;
+  function toggleRecentListings() {
+    if (!recentContent || !toggleBtn) return;
 
-  isExpanded = !isExpanded;
-  const icon = toggleBtn.querySelector("i");
+    isExpanded = !isExpanded;
+    const icon = toggleBtn.querySelector("i");
 
-  if (isExpanded) {
-    // 펼치기
-    recentContent.style.maxHeight = "calc(100vh - 10rem)";
-    recentContent.style.opacity = "1";
-    if (icon) {
-      icon.className = "fas fa-chevron-up text-lg";
-    }
-  } else {
-    // 접기
-    recentContent.style.maxHeight = "0";
-    recentContent.style.opacity = "0";
-    if (icon) {
-      icon.className = "fas fa-chevron-down text-lg";
+    if (isExpanded) {
+      // 펼치기
+      recentContent.style.maxHeight = "calc(100vh - 13rem)";
+      recentContent.style.opacity = "1";
+      if (icon) {
+        icon.className = "fas fa-chevron-up text-lg";
+      }
+    } else {
+      // 접기
+      recentContent.style.maxHeight = "0";
+      recentContent.style.opacity = "0";
+      if (icon) {
+        icon.className = "fas fa-chevron-down text-lg";
+      }
     }
   }
-}
 
 if (toggleBtn) {
   toggleBtn.addEventListener("click", (e) => {
@@ -788,78 +832,191 @@ if (mobileRecentDrawer) {
 
 // ==================== 인증 기능 ====================
 
-// 로그인 상태 확인
-onAuthStateChanged(auth, (user) => {
-  const authButtons = qs("#authButtons");
-  const userInfo = qs("#userInfo");
-  const userEmailSpan = qs("#userEmail");
+// ==================== 찜하기 기능 ====================
+
+// 사용자의 찜한 매물 로드
+async function loadUserFavorites() {
+  if (!currentUser) return;
+
+  try {
+    const favoritesSnap = await getDocs(
+      query(collection(db, "favorites"), where("userId", "==", currentUser.uid))
+    );
+
+    userFavorites.clear();
+    favoritesSnap.docs.forEach((doc) => {
+      userFavorites.add(doc.data().listingId);
+    });
+
+    console.log(`💝 찜한 매물 ${userFavorites.size}개 로드`);
+  } catch (error) {
+    console.error("찜한 매물 로드 실패:", error);
+  }
+}
+
+// 찜하기 토글
+window.toggleFavorite = async function (listingId) {
+  console.log("❤️ toggleFavorite 호출됨:", listingId);
   
-  // 모바일
-  const mobileAuthButtons = qs("#mobileAuthButtons");
-  const mobileUserInfo = qs("#mobileUserInfo");
-  const mobileUserEmailSpan = qs("#mobileUserEmail");
+  if (!currentUser) {
+    alert("로그인이 필요합니다.");
+    return;
+  }
+
+  try {
+    if (userFavorites.has(listingId)) {
+      // 찜 해제
+      console.log("💔 찜 해제 시작...");
+      const favoritesSnap = await getDocs(
+        query(
+          collection(db, "favorites"),
+          where("userId", "==", currentUser.uid),
+          where("listingId", "==", listingId)
+        )
+      );
+
+      for (const doc of favoritesSnap.docs) {
+        await deleteDoc(doc.ref);
+      }
+
+      userFavorites.delete(listingId);
+      console.log("✅ 찜 해제 완료:", listingId);
+    } else {
+      // 찜하기
+      console.log("💝 찜하기 시작...");
+      await addDoc(collection(db, "favorites"), {
+        userId: currentUser.uid,
+        listingId: listingId,
+        createdAt: serverTimestamp(),
+      });
+
+      userFavorites.add(listingId);
+      console.log("✅ 찜하기 완료:", listingId);
+    }
+
+    // UI 업데이트
+    updateFavoriteButton(listingId);
+  } catch (error) {
+    console.error("❌ 찜하기 처리 실패:", error);
+    alert("찜하기 처리 중 오류가 발생했습니다: " + error.message);
+  }
+};
+
+// 찜하기 버튼 UI 업데이트
+function updateFavoriteButton(listingId) {
+  const btn = document.querySelector(`[data-favorite-id="${listingId}"]`);
+  if (!btn) {
+    console.warn("찜하기 버튼을 찾을 수 없습니다:", listingId);
+    return;
+  }
+
+  const icon = btn.querySelector("i");
+  if (userFavorites.has(listingId)) {
+    // 찜한 상태
+    btn.classList.remove("text-slate-400", "hover:text-red-500");
+    btn.classList.add("text-red-500");
+    btn.title = "찜 해제";
+    if (icon) {
+      icon.className = "fas fa-heart";
+    }
+    console.log("💝 UI 업데이트: 찜한 상태");
+  } else {
+    // 찜 안한 상태
+    btn.classList.remove("text-red-500");
+    btn.classList.add("text-slate-400", "hover:text-red-500");
+    btn.title = "찜하기";
+    if (icon) {
+      icon.className = "far fa-heart";
+    }
+    console.log("💔 UI 업데이트: 찜 안한 상태");
+  }
+}
+
+// 로그인 상태 확인
+onAuthStateChanged(auth, async (user) => {
+  // 상단 바
+  const topAuthButtons = qs("#topAuthButtons");
+  const topUserInfo = qs("#topUserInfo");
+  const topUserEmailSpan = qs("#topUserEmail");
 
   if (user) {
+    currentUser = user;
+    
     // 로그인 상태
-    if (authButtons) authButtons.classList.add("hidden");
-    if (userInfo) {
-      userInfo.classList.remove("hidden");
-      if (userEmailSpan) userEmailSpan.textContent = user.email;
+    if (topAuthButtons) topAuthButtons.classList.add("hidden");
+    if (topUserInfo) {
+      topUserInfo.classList.remove("hidden");
+      if (topUserEmailSpan) topUserEmailSpan.textContent = user.email;
     }
     
-    // 모바일
-    if (mobileAuthButtons) mobileAuthButtons.classList.add("hidden");
-    if (mobileUserInfo) {
-      mobileUserInfo.classList.remove("hidden");
-      if (mobileUserEmailSpan) mobileUserEmailSpan.textContent = user.email;
-    }
+    // 사용자의 찜한 매물 로드
+    await loadUserFavorites();
+    
+    // 최근 본 매물 다시 렌더링
+    renderRecentListings();
+    
+    // 카테고리 다시 렌더링 (찜하기 버튼 표시)
+    renderCategories();
 
-    // Admin 계정 체크
-    if (ADMIN_EMAILS.includes(user.email)) {
-      console.log("🔑 Admin 계정 감지:", user.email);
-      showAdminButton();
-    }
+    // Admin 계정 체크 - Firestore에서 role 확인
+    await checkAdminRole(user);
   } else {
-    // 로그아웃 상태
-    if (authButtons) authButtons.classList.remove("hidden");
-    if (userInfo) userInfo.classList.add("hidden");
+    currentUser = null;
+    userFavorites.clear();
     
-    // 모바일
-    if (mobileAuthButtons) mobileAuthButtons.classList.remove("hidden");
-    if (mobileUserInfo) mobileUserInfo.classList.add("hidden");
+    // 로그아웃 상태
+    if (topAuthButtons) topAuthButtons.classList.remove("hidden");
+    if (topUserInfo) topUserInfo.classList.add("hidden");
+    
+    // 최근 본 매물 숨기기
+    renderRecentListings();
+    
+    // 카테고리 다시 렌더링 (찜하기 버튼 숨김)
+    renderCategories();
   }
 });
 
+// Firestore에서 사용자 role 확인하여 Admin 여부 체크
+async function checkAdminRole(user) {
+  try {
+    const userDocRef = doc(db, "users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data();
+      if (userData.role === "admin") {
+        console.log("🔑 Admin 권한 확인:", user.email);
+        showAdminButton();
+      } else {
+        console.log("👤 일반 사용자:", user.email);
+      }
+    } else {
+      console.log("⚠️ 사용자 문서 없음 (신규 사용자일 수 있음)");
+    }
+  } catch (error) {
+    console.error("❌ Admin 권한 확인 실패:", error);
+  }
+}
+
 // Admin 버튼 표시
 function showAdminButton() {
-  // 데스크탑
-  const userInfo = qs("#userInfo");
-  if (userInfo && !qs("#adminPageBtn")) {
+  const topUserInfo = qs("#topUserInfo");
+  if (topUserInfo && !qs("#topAdminPageBtn")) {
     const adminBtn = document.createElement("a");
-    adminBtn.id = "adminPageBtn";
+    adminBtn.id = "topAdminPageBtn";
     adminBtn.href = "/admin/index.html";
-    adminBtn.className = "px-4 py-2 text-sm font-semibold bg-red-600 text-white hover:bg-red-700 rounded-xl transition-all";
-    adminBtn.innerHTML = '<i class="fas fa-cog mr-1"></i> 관리자';
-    userInfo.insertBefore(adminBtn, qs("#logoutBtn"));
-  }
-  
-  // 모바일
-  const mobileUserInfo = qs("#mobileUserInfo");
-  if (mobileUserInfo && !qs("#mobileAdminPageBtn")) {
-    const mobileAdminBtn = document.createElement("a");
-    mobileAdminBtn.id = "mobileAdminPageBtn";
-    mobileAdminBtn.href = "/admin/index.html";
-    mobileAdminBtn.className = "block w-full px-4 py-3 text-base font-semibold bg-red-600 text-white hover:bg-red-700 rounded-xl transition-colors text-center";
-    mobileAdminBtn.innerHTML = '<i class="fas fa-cog mr-1"></i> 관리자 페이지';
-    mobileUserInfo.insertBefore(mobileAdminBtn, qs("#mobileLogoutBtn"));
+    adminBtn.className = "px-3 py-1 text-xs font-semibold bg-red-600 text-white hover:bg-red-700 rounded transition-all";
+    adminBtn.innerHTML = '<i class="fas fa-cog mr-1"></i>관리자';
+    topUserInfo.insertBefore(adminBtn, topUserInfo.firstChild);
   }
 }
 
 // 모달 열기/닫기
 const loginModal = qs("#loginModal");
 const signupModal = qs("#signupModal");
-const loginBtn = qs("#loginBtn");
-const signupBtn = qs("#signupBtn");
+const topLoginBtn = qs("#topLoginBtn");
+const topSignupBtn = qs("#topSignupBtn");
+const topLogoutBtn = qs("#topLogoutBtn");
 const closeLoginModal = qs("#closeLoginModal");
 const closeSignupModal = qs("#closeSignupModal");
 const switchToSignup = qs("#switchToSignup");
@@ -904,21 +1061,14 @@ function closeSignupModalFunc() {
   }
 }
 
-// 이벤트 리스너 (데스크탑)
-if (loginBtn) loginBtn.addEventListener("click", openLoginModal);
-if (signupBtn) signupBtn.addEventListener("click", openSignupModal);
+// 이벤트 리스너 (상단 바)
+if (topLoginBtn) topLoginBtn.addEventListener("click", openLoginModal);
+if (topSignupBtn) topSignupBtn.addEventListener("click", openSignupModal);
 if (closeLoginModal) closeLoginModal.addEventListener("click", closeLoginModalFunc);
 if (closeSignupModal) closeSignupModal.addEventListener("click", closeSignupModalFunc);
 
-// 이벤트 리스너 (모바일)
-const mobileLoginBtn = qs("#mobileLoginBtn");
-const mobileSignupBtn = qs("#mobileSignupBtn");
-const mobileLogoutBtn = qs("#mobileLogoutBtn");
-
-if (mobileLoginBtn) mobileLoginBtn.addEventListener("click", openLoginModal);
-if (mobileSignupBtn) mobileSignupBtn.addEventListener("click", openSignupModal);
-if (mobileLogoutBtn) {
-  mobileLogoutBtn.addEventListener("click", async () => {
+if (topLogoutBtn) {
+  topLogoutBtn.addEventListener("click", async () => {
     try {
       await signOut(auth);
       alert("로그아웃되었습니다.");
@@ -972,7 +1122,8 @@ async function handleLogin() {
     msgEl.textContent = "로그인 중...";
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     
-    // Firestore에 사용자 정보 저장/업데이트
+    // Firestore에 사용자 정보 저장/업데이트 및 role 확인
+    let userRole = "user";
     try {
       const userDocRef = doc(db, "users", userCredential.user.uid);
       const userDocSnap = await getDoc(userDocRef);
@@ -986,21 +1137,30 @@ async function handleLogin() {
           createdAt: serverTimestamp(),
           lastLoginAt: serverTimestamp(),
         });
-        console.log("✅ 새 사용자 문서 생성");
+        userRole = isAdmin ? "admin" : "user";
+        console.log("✅ 새 사용자 문서 생성, role:", userRole);
       } else {
+        // 기존 사용자 - role 가져오기
+        const userData = userDocSnap.data();
+        userRole = userData.role || "user";
+        
         // 마지막 로그인 시간만 업데이트
         await updateDoc(userDocRef, {
           lastLoginAt: serverTimestamp(),
         });
+        
+        console.log("✅ 기존 사용자, role:", userRole);
       }
     } catch (firestoreError) {
       console.warn("⚠️ Firestore 업데이트 실패:", firestoreError);
     }
     
-    // Admin 계정 체크
-    if (ADMIN_EMAILS.includes(userCredential.user.email)) {
+    // Admin role인 경우에만 admin 페이지로 이동
+    if (userRole === "admin") {
+      console.log("🔑 Admin 계정 확인 - 관리자 페이지로 이동");
       window.location.href = "/admin/index.html";
     } else {
+      console.log("👤 일반 사용자 로그인 완료");
       closeLoginModalFunc();
       msgEl.textContent = "";
     }
@@ -1119,16 +1279,3 @@ if (signupPasswordConfirmInput) {
   });
 }
 
-// 로그아웃 처리
-const logoutBtn = qs("#logoutBtn");
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", async () => {
-    try {
-      await signOut(auth);
-      alert("로그아웃되었습니다.");
-    } catch (error) {
-      console.error("로그아웃 실패:", error);
-      alert("로그아웃 실패: " + error.message);
-    }
-  });
-}

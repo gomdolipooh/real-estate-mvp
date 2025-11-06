@@ -51,13 +51,38 @@ console.log("💾 Storage:", storage.app.options.storageBucket);
 let currentEditId = null;
 
 // 인증 체크
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
     console.log("❌ 사용자 미인증 - 로그인 페이지로 이동");
     location.href = "/admin/login.html";
   } else {
     console.log("✅ 사용자 인증됨:", user.email);
-    initializeAdmin();
+    
+    // Firestore에서 role 확인
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        if (userData.role === "admin") {
+          console.log("🔑 Admin 권한 확인 - 관리자 페이지 접근 허용");
+          initializeAdmin();
+        } else {
+          console.log("⛔ Admin 권한 없음 - 메인 페이지로 이동");
+          alert("관리자 권한이 없습니다.");
+          location.href = "/index.html";
+        }
+      } else {
+        console.log("⚠️ 사용자 정보 없음 - 메인 페이지로 이동");
+        alert("사용자 정보를 찾을 수 없습니다.");
+        location.href = "/index.html";
+      }
+    } catch (error) {
+      console.error("❌ 권한 확인 실패:", error);
+      alert("권한 확인 중 오류가 발생했습니다.");
+      location.href = "/index.html";
+    }
   }
 });
 

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>찜한 매물 - 비전부동산</title>
+    <meta name="description" content="내가 찜한 매물 목록" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: {
+                900: "#0b1b34",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+    <!-- 상단 유틸리티 바 -->
+    <div class="sticky top-0 z-50 bg-slate-900 text-white text-xs border-b border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 h-9 flex items-center justify-between">
+        <!-- 왼쪽: 즐겨찾기 등 -->
+        <div class="flex items-center gap-4">
+          <button class="hover:text-slate-300 transition-colors">
+            <i class="fa fa-bookmark mr-1"></i>즐겨찾기
+          </button>
+        </div>
+
+        <!-- 오른쪽: 로그인/회원가입/마이페이지 -->
+        <div class="flex items-center gap-4">
+          <!-- 로그인 전 -->
+          <div id="topAuthButtons" class="flex items-center gap-4">
+            <button id="topLoginBtn" class="hover:text-slate-300 transition-colors">
+              로그인
+            </button>
+            <button id="topSignupBtn" class="hover:text-slate-300 transition-colors">
+              회원가입
+            </button>
+          </div>
+
+          <!-- 로그인 후 -->
+          <div id="topUserInfo" class="hidden flex items-center gap-4">
+            <span id="topUserEmail" class="text-slate-300"></span>
+            <div class="relative group">
+              <button class="hover:text-slate-300 transition-colors flex items-center gap-1">
+                <i class="fa fa-user mr-1"></i>마이페이지
+                <i class="fa fa-caret-down ml-1"></i>
+              </button>
+              <div class="absolute right-0 top-full mt-1 bg-white text-slate-900 rounded-lg shadow-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all w-40">
+                <a href="/favorites.html" class="block px-4 py-2 hover:bg-slate-100 transition-colors">
+                  <i class="fa fa-heart mr-2"></i>찜 매물
+                </a>
+                <button id="topLogoutBtn" class="block w-full text-left px-4 py-2 hover:bg-slate-100 transition-colors border-t">
+                  <i class="fa fa-sign-out-alt mr-2"></i>로그아웃
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky Header -->
+    <header
+      class="sticky top-9 z-40 bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200"
+    >
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between h-20">
+          <!-- Logo -->
+          <a
+            href="index.html"
+            class="text-2xl font-black text-navy-900 hover:opacity-80 transition-opacity"
+          >
+            비전부동산
+          </a>
+
+          <!-- Desktop Navigation -->
+          <nav class="hidden lg:flex items-center space-x-1">
+            <a
+              href="listings.html"
+              class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 hover:text-navy-900 rounded-xl transition-all"
+            >
+              전체매물
+            </a>
+            <a
+              href="request.html"
+              class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 hover:text-navy-900 rounded-xl transition-all"
+            >
+              의뢰하기
+            </a>
+            <a
+              href="index.html#section-about"
+              class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 hover:text-navy-900 rounded-xl transition-all"
+            >
+              회사소개
+            </a>
+          </nav>
+
+          <!-- Mobile Menu Button -->
+          <button
+            id="mobileMenuToggle"
+            class="lg:hidden p-2 text-navy-900 hover:bg-slate-200 rounded-lg transition-colors"
+          >
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-navy-900 to-slate-800 text-white py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-3 mb-4">
+          <i class="fas fa-heart text-3xl"></i>
+          <h1 class="text-3xl md:text-4xl font-bold">찜한 매물</h1>
+        </div>
+        <p class="text-slate-300 text-lg">
+          관심있는 매물을 저장하고 비교해보세요
+        </p>
+      </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <!-- 로그인 안내 -->
+      <div id="loginRequired" class="hidden text-center py-16">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 max-w-md mx-auto">
+          <i class="fas fa-lock text-6xl text-slate-300 mb-4"></i>
+          <h2 class="text-2xl font-bold text-slate-900 mb-3">로그인이 필요합니다</h2>
+          <p class="text-slate-600 mb-6">찜한 매물을 보려면 로그인해주세요.</p>
+          <button
+            id="goToLoginBtn"
+            class="px-8 py-3 bg-navy-900 text-white font-semibold rounded-xl hover:bg-navy-800 transition-all"
+          >
+            로그인하기
+          </button>
+        </div>
+      </div>
+
+      <!-- 찜한 매물 목록 -->
+      <div id="favoritesContent" class="hidden">
+        <!-- 결과 요약 -->
+        <div id="summary" class="text-slate-600 font-semibold mb-6 text-lg"></div>
+
+        <!-- 매물 그리드 -->
+        <section
+          id="grid"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mb-12"
+        ></section>
+
+        <!-- 빈 상태 -->
+        <div id="emptyState" class="hidden text-center py-16">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 max-w-md mx-auto">
+            <i class="fas fa-heart-broken text-6xl text-slate-300 mb-4"></i>
+            <h2 class="text-2xl font-bold text-slate-900 mb-3">찜한 매물이 없습니다</h2>
+            <p class="text-slate-600 mb-6">마음에 드는 매물을 찜해보세요!</p>
+            <a
+              href="listings.html"
+              class="inline-block px-8 py-3 bg-navy-900 text-white font-semibold rounded-xl hover:bg-navy-800 transition-all"
+            >
+              매물 둘러보기
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 로딩 -->
+      <div id="loading" class="text-center py-16">
+        <i class="fas fa-spinner fa-spin text-4xl text-slate-400 mb-4"></i>
+        <p class="text-slate-600">로딩 중...</p>
+      </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-16">
+      <div class="max-w-7xl mx-auto px-4 py-12">
+        <div class="border-t border-slate-200 pt-6">
+          <p class="text-slate-500 text-xs text-center">
+            © 2025 비전부동산 (남동비전 공인중개사사무소). All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/favorites.js"></script>
+  </body>
+</html>
+

@@ -24,9 +24,53 @@
     />
   </head>
   <body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+    <!-- 상단 유틸리티 바 -->
+    <div class="sticky top-0 z-50 bg-slate-900 text-white text-xs border-b border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 h-9 flex items-center justify-between">
+        <!-- 왼쪽: 즐겨찾기 등 -->
+        <div class="flex items-center gap-4">
+          <button class="hover:text-slate-300 transition-colors">
+            <i class="fa fa-bookmark mr-1"></i>즐겨찾기
+          </button>
+        </div>
+
+        <!-- 오른쪽: 로그인/회원가입/마이페이지 -->
+        <div class="flex items-center gap-4">
+          <!-- 로그인 전 -->
+          <div id="topAuthButtons" class="flex items-center gap-4">
+            <button id="topLoginBtn" class="hover:text-slate-300 transition-colors">
+              로그인
+            </button>
+            <button id="topSignupBtn" class="hover:text-slate-300 transition-colors">
+              회원가입
+            </button>
+          </div>
+
+          <!-- 로그인 후 -->
+          <div id="topUserInfo" class="hidden flex items-center gap-4">
+            <span id="topUserEmail" class="text-slate-300"></span>
+            <div class="relative group">
+              <button class="hover:text-slate-300 transition-colors flex items-center gap-1">
+                <i class="fa fa-user mr-1"></i>마이페이지
+                <i class="fa fa-caret-down ml-1"></i>
+              </button>
+              <div class="absolute right-0 top-full mt-1 bg-white text-slate-900 rounded-lg shadow-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all w-40">
+                <a href="/favorites.html" class="block px-4 py-2 hover:bg-slate-100 transition-colors">
+                  <i class="fa fa-heart mr-2"></i>찜 매물
+                </a>
+                <button id="topLogoutBtn" class="block w-full text-left px-4 py-2 hover:bg-slate-100 transition-colors border-t">
+                  <i class="fa fa-sign-out-alt mr-2"></i>로그아웃
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Sticky Header -->
     <header
-      class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200"
+      class="sticky top-9 z-40 bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200"
     >
       <div class="max-w-7xl mx-auto px-4">
         <div class="flex items-center justify-between h-20">
@@ -68,33 +112,6 @@
 
           <!-- Search & Mobile Menu Button -->
           <div class="flex items-center gap-3">
-            <!-- 로그인/회원가입 버튼 -->
-            <div id="authButtons" class="hidden lg:flex items-center gap-2">
-              <button
-                id="loginBtn"
-                class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition-all"
-              >
-                로그인
-              </button>
-              <button
-                id="signupBtn"
-                class="px-4 py-2 text-sm font-semibold bg-navy-900 text-white hover:bg-navy-800 rounded-xl transition-all"
-              >
-                회원가입
-              </button>
-            </div>
-
-            <!-- 로그인 후 표시 -->
-            <div id="userInfo" class="hidden lg:flex items-center gap-3">
-              <span class="text-sm text-slate-700" id="userEmail"></span>
-              <button
-                id="logoutBtn"
-                class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition-all"
-              >
-                로그아웃
-              </button>
-            </div>
-
             <!-- Desktop Search Form -->
             <form id="searchForm" class="hidden md:flex items-center gap-2">
               <label for="q" class="sr-only">매물 검색</label>
@@ -178,35 +195,6 @@
               </button>
             </div>
           </form>
-
-          <!-- Mobile 로그인/회원가입 -->
-          <div id="mobileAuthButtons" class="pt-2 space-y-2">
-            <button
-              id="mobileLoginBtn"
-              class="block w-full px-4 py-3 text-base font-semibold text-slate-700 hover:bg-slate-200 rounded-xl transition-colors"
-            >
-              로그인
-            </button>
-            <button
-              id="mobileSignupBtn"
-              class="block w-full px-4 py-3 text-base font-semibold bg-navy-900 text-white hover:bg-navy-800 rounded-xl transition-colors"
-            >
-              회원가입
-            </button>
-          </div>
-
-          <!-- Mobile 로그인 후 표시 -->
-          <div id="mobileUserInfo" class="hidden pt-2 space-y-2">
-            <div class="px-4 py-3 bg-slate-100 rounded-xl">
-              <span class="text-sm text-slate-700" id="mobileUserEmail"></span>
-            </div>
-            <button
-              id="mobileLogoutBtn"
-              class="block w-full px-4 py-3 text-base font-semibold text-slate-700 hover:bg-slate-200 rounded-xl transition-colors"
-            >
-              로그아웃
-            </button>
-          </div>
         </nav>
       </div>
     </header>
@@ -1177,7 +1165,7 @@
       </section>
 
       <!-- 최근 본 매물 사이드바 (화면 오른쪽에 고정) -->
-      <aside class="hidden xl:block fixed top-24 right-0 w-80 z-30" id="recentSidebar">
+      <aside class="hidden xl:block fixed top-[116px] right-0 w-80 z-30" id="recentSidebar">
         <div class="bg-white rounded-l-2xl border-l border-t border-b border-slate-200 shadow-xl overflow-hidden">
           <!-- 헤더 (항상 보임) -->
           <div class="bg-gradient-to-r from-navy-900 to-slate-800 text-white px-5 py-4 flex items-center justify-between cursor-pointer" id="recentHeader">
@@ -1204,7 +1192,7 @@
           </div>
 
           <!-- 최근 본 매물 목록 (토글 가능) -->
-          <div id="recentListingsContent" class="max-h-[calc(100vh-10rem)] overflow-y-auto transition-all duration-300">
+          <div id="recentListingsContent" class="max-h-[calc(100vh-13rem)] overflow-y-auto transition-all duration-300">
             <div id="recentListingsContainer" class="divide-y divide-slate-100">
               <!-- 빈 상태 -->
               <div id="emptyRecentState" class="p-8 text-center">
