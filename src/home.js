@@ -1,5 +1,5 @@
 // 메인 페이지 전용 JavaScript
-import { qs } from "./utils.js";
+import { qs, qsa } from "./utils.js";
 import { fmt } from "./utils.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import {
@@ -22,6 +22,8 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  setPersistence,
+  browserSessionPersistence,
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
 // Firebase 설정
@@ -38,6 +40,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+
+// 브라우저 종료 시 자동 로그아웃 설정 (브라우저 세션 동안만 로그인 유지)
+setPersistence(auth, browserSessionPersistence).catch((error) => {
+  console.error("Persistence 설정 실패:", error);
+});
 
 // Admin 이메일 목록
 const ADMIN_EMAILS = ["admin@vision.com", "vs1705@daum.net"];
@@ -87,6 +94,44 @@ function clearRecentListings() {
     renderRecentListings();
   } catch (error) {
     console.error("최근 본 매물 삭제 실패:", error);
+  }
+}
+
+function saveRecentListing(listing) {
+  const storageKey = currentUser 
+    ? RECENT_LISTINGS_KEY + "_" + currentUser.uid 
+    : RECENT_LISTINGS_KEY + "_guest";
+  
+  try {
+    const recent = getRecentListings();
+    
+    // 이미 있으면 제거 (맨 위로 올리기 위해)
+    const filtered = recent.filter(item => item.id !== listing.id);
+    
+    // 새 항목을 맨 앞에 추가
+    filtered.unshift({
+      id: listing.id,
+      title: listing.title,
+      dealType: listing.dealType,
+      price: listing.price,
+      deposit: listing.deposit,
+      rent: listing.rent,
+      region: listing.region,
+      sizePyeong: listing.sizePyeong,
+      images: listing.images,
+      timestamp: Date.now()
+    });
+    
+    // 최대 개수 제한
+    const limited = filtered.slice(0, MAX_RECENT_ITEMS);
+    
+    localStorage.setItem(storageKey, JSON.stringify(limited));
+    console.log("✅ 최근 본 매물 저장:", listing.title);
+    
+    // UI 업데이트
+    renderRecentListings();
+  } catch (error) {
+    console.error("최근 본 매물 저장 실패:", error);
   }
 }
 
@@ -359,6 +404,23 @@ function renderCategories() {
   renderCategory("#category-cosmetics", getFeaturedListings("cosmetics"), getColorTheme('cosmetics'));
   renderCategory("#category-metal", getFeaturedListings("metal"), getColorTheme('metal'));
   renderCategory("#category-food", getFeaturedListings("food"), getColorTheme('food'));
+  
+  // 상세보기 버튼에 최근 본 매물 저장 이벤트 추가
+  setTimeout(() => {
+    qsa("a[href*='listing.html']").forEach((link) => {
+      link.addEventListener("click", (e) => {
+        const href = e.currentTarget.getAttribute("href");
+        const match = href.match(/id=([^&]+)/);
+        if (match) {
+          const listingId = match[1];
+          const listing = listings.find(l => l.id === listingId);
+          if (listing) {
+            saveRecentListing(listing);
+          }
+        }
+      });
+    });
+  }, 100);
 }
 
 // 카테고리별 매물 가져오기 (featured 우선, 없으면 자동 필터링)
@@ -968,6 +1030,10 @@ onAuthStateChanged(auth, async (user) => {
     if (topAuthButtons) topAuthButtons.classList.remove("hidden");
     if (topUserInfo) topUserInfo.classList.add("hidden");
     
+    // 관리자 버튼 제거
+    const adminBtn = qs("#topAdminPageBtn");
+    if (adminBtn) adminBtn.remove();
+    
     // 최근 본 매물 숨기기
     renderRecentListings();
     
@@ -978,17 +1044,26 @@ onAuthStateChanged(auth, async (user) => {
 
 // Firestore에서 사용자 role 확인하여 Admin 여부 체크
 async function checkAdminRole(user) {
+  // 먼저 기존 관리자 버튼 제거 (중복 방지)
+  const existingAdminBtn = qs("#topAdminPageBtn");
+  if (existingAdminBtn) {
+    existingAdminBtn.remove();
+  }
+  
   try {
     const userDocRef = doc(db, "users", user.uid);
     const userDocSnap = await getDoc(userDocRef);
     
     if (userDocSnap.exists()) {
       const userData = userDocSnap.data();
+      console.log("📋 사용자 role:", userData.role);
+      
       if (userData.role === "admin") {
         console.log("🔑 Admin 권한 확인:", user.email);
         showAdminButton();
       } else {
         console.log("👤 일반 사용자:", user.email);
+        console.log("❌ 관리자 버튼 표시 안함");
       }
     } else {
       console.log("⚠️ 사용자 문서 없음 (신규 사용자일 수 있음)");

@@ -74,3 +74,5 @@ https://console.firebase.google.com/ 접속
 3. 마이페이지 → 찜 매물 에서 확인
 4. 찜한 매물 페이지에서 하트 버튼 클릭하여 해제
 
+
+

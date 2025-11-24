@@ -22,6 +22,8 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  setPersistence,
+  browserSessionPersistence,
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
 // Firebase 설정
@@ -38,6 +40,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+
+// 브라우저 종료 시 자동 로그아웃 설정 (브라우저 세션 동안만 로그인 유지)
+setPersistence(auth, browserSessionPersistence).catch((error) => {
+  console.error("Persistence 설정 실패:", error);
+});
 
 // Admin 이메일 목록
 const ADMIN_EMAILS = ["admin@vision.com", "vs1705@daum.net"];
@@ -694,7 +701,7 @@ function render() {
           <i class="fas fa-phone"></i>
         </a>
         <a 
-          href="https://pf.kakao.com/_channelId" 
+          href="https://open.kakao.com/o/sx8PHf1h" 
           target="_blank"
           class="py-2 px-3 border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors text-sm font-semibold"
           aria-label="카카오톡 문의"
@@ -766,6 +773,10 @@ onAuthStateChanged(auth, async (user) => {
     if (topAuthButtons) topAuthButtons.classList.remove("hidden");
     if (topUserInfo) topUserInfo.classList.add("hidden");
     
+    // 관리자 버튼 제거
+    const adminBtn = qs("#topAdminPageBtn");
+    if (adminBtn) adminBtn.remove();
+    
     // 최근 본 매물 숨기기
     renderRecentListings();
     
@@ -778,17 +789,26 @@ onAuthStateChanged(auth, async (user) => {
 
 // Firestore에서 사용자 role 확인하여 Admin 여부 체크
 async function checkAdminRole(user) {
+  // 먼저 기존 관리자 버튼 제거 (중복 방지)
+  const existingAdminBtn = qs("#topAdminPageBtn");
+  if (existingAdminBtn) {
+    existingAdminBtn.remove();
+  }
+  
   try {
     const userDocRef = doc(db, "users", user.uid);
     const userDocSnap = await getDoc(userDocRef);
     
     if (userDocSnap.exists()) {
       const userData = userDocSnap.data();
+      console.log("📋 사용자 role:", userData.role);
+      
       if (userData.role === "admin") {
         console.log("🔑 Admin 권한 확인:", user.email);
         showAdminButton();
       } else {
         console.log("👤 일반 사용자:", user.email);
+        console.log("❌ 관리자 버튼 표시 안함");
       }
     } else {
       console.log("⚠️ 사용자 문서 없음");

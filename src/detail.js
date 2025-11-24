@@ -41,8 +41,17 @@ let userFavorites = new Set();
 let currentListingId = null;
 
 function saveRecentListing(listing) {
+  const storageKey = currentUser 
+    ? RECENT_LISTINGS_KEY + "_" + currentUser.uid 
+    : RECENT_LISTINGS_KEY + "_guest";
+  
   try {
-    let recent = JSON.parse(localStorage.getItem(RECENT_LISTINGS_KEY) || "[]");
+    let recent = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    
+    // 30일 이상 지난 항목 자동 삭제
+    const now = Date.now();
+    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+    recent = recent.filter(item => (now - item.timestamp) < THIRTY_DAYS);
     
     // 이미 존재하는 항목 제거 (중복 방지)
     recent = recent.filter(item => item.id !== listing.id);
@@ -65,7 +74,8 @@ function saveRecentListing(listing) {
     // 최대 개수 제한
     recent = recent.slice(0, MAX_RECENT_ITEMS);
     
-    localStorage.setItem(RECENT_LISTINGS_KEY, JSON.stringify(recent));
+    localStorage.setItem(storageKey, JSON.stringify(recent));
+    console.log("✅ 최근 본 매물 저장:", listing.title);
   } catch (error) {
     console.error("최근 본 매물 저장 실패:", error);
   }
@@ -180,7 +190,7 @@ async function load() {
         <div class="contact">
           ${favoriteButton}
           <a class="cta" href="tel:0328125001">전화문의</a>
-          <a class="cta" href="https://pf.kakao.com/_channelId" target="_blank">카카오톡</a>
+          <a class="cta" href="https://open.kakao.com/o/sx8PHf1h" target="_blank">카카오톡</a>
           <a class="cta" href="mailto:vs1705@daum.net?subject=${encodeURIComponent(
             "[매물문의] " + it.title
           )}">이메일</a>
